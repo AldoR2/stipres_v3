@@ -1,0 +1,2 @@
+C:/laragon/www/project_mobile_sem4/android/app/.cxx/Debug/4k2o4a45/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/laragon/www/project_mobile_sem4/android/app/.cxx/Debug/4k2o4a45/armeabi-v7a/CMakeFiles/rebuild_cache.dir

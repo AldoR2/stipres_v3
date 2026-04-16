@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "446786939828",
+    "project_id": "stipres-flutter",
+    "storage_bucket": "stipres-flutter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:446786939828:android:cacd5d808a3f011f68e0e1",
+        "android_client_info": {
+          "package_name": "com.example.stipres"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSdNoIapU9tJWiWhhiatCLHv0WXHiCDgM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
