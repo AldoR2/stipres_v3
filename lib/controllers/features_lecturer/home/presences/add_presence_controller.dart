@@ -8,6 +8,7 @@ import 'package:stipres/models/lecturers/data_prodi_model.dart';
 import 'package:stipres/models/lecturers/disabled_pertemuan_model.dart';
 import 'package:stipres/models/lecturers/matkul_model.dart';
 import 'package:stipres/models/lecturers/presence_request_model.dart';
+import 'package:stipres/screens/features_lecturer/home/presence/location_picker.dart';
 import 'package:stipres/screens/reusable/failed_dialog.dart';
 import 'package:stipres/screens/reusable/loading_screen.dart';
 import 'package:stipres/screens/reusable/success_dialog.dart';
@@ -39,6 +40,9 @@ class AddPresenceController extends GetxController {
   final listMatkul = <MatkulModel>[].obs;
   final listPertemuan = <DisabledPertemuansModel>[].obs;
   final selectedStatus = ''.obs;
+  var selectedLokasi = ''.obs;
+  var latitude = ''.obs;
+  var longitude = ''.obs;
   final listStatus = [
     'Aktif',
     'Libur',
@@ -553,6 +557,19 @@ class AddPresenceController extends GetxController {
   TimeOfDay stringToTimeOfDay(String time) {
     final parts = time.split(':');
     return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  }
+
+  Future<void> openLocationPicker(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LocationPickerScreen()),
+    );
+
+    if (result != null) {
+      selectedLokasi.value = result.name;
+      latitude.value = result.latitude.toString();
+      longitude.value = result.longitude.toString();
+    }
   }
 
   void showLoading() {

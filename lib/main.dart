@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ import 'package:stipres/services/notification_service.dart';
 import 'package:stipres/routes/app_screens.dart';
 import 'package:stipres/theme/theme_controller.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
+
+late List<CameraDescription> cameras;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
