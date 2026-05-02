@@ -171,8 +171,7 @@ class _PresenceContentScreenState extends State<PresenceContentScreen> {
                                                   backgroundColor: blueColor,
                                                   padding: const EdgeInsets
                                                       .symmetric(vertical: 14),
-                                                  shape:
-                                                      RoundedRectangleBorder(
+                                                  shape: RoundedRectangleBorder(
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             10),
@@ -212,8 +211,7 @@ class _PresenceContentScreenState extends State<PresenceContentScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: TextField(
-                                    controller:
-                                        _controller.alasanController,
+                                    controller: _controller.alasanController,
                                     maxLines: 4,
                                     decoration: const InputDecoration(
                                       hintText: "*Alasan ketidakhadiran",
@@ -231,30 +229,30 @@ class _PresenceContentScreenState extends State<PresenceContentScreen> {
                                   },
                                   child: const Text("Upload Bukti"),
                                 ),
-                              ],
 
-                              const SizedBox(height: 30),
+                                const SizedBox(height: 30),
 
-                              /// ================= SUBMIT =================
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    (!_controller.isSnackbarOpen.value)
-                                        ? _controller.submitPresence()
-                                        : null;
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: blueColor,
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16),
-                                  ),
-                                  child: const Text(
-                                    "Submit",
-                                    style: TextStyle(color: Colors.white),
+                                /// ================= SUBMIT =================
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      (!_controller.isSnackbarOpen.value)
+                                          ? _controller.submitPresence()
+                                          : null;
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: blueColor,
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 16),
+                                    ),
+                                    child: const Text(
+                                      "Submit",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
                   ),

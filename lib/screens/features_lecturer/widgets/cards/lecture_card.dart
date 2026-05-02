@@ -164,7 +164,7 @@ class PerkuliahanCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(24),
                             onTap: () {
                               if (onEdit != null) {
-                                onEdit!(data.linkZoom, data.presensisId);
+                                onEdit!(data.linkZoom ?? "Kosong", data.presensisId);
                               }
                             },
                             child: Padding(
@@ -186,7 +186,7 @@ class PerkuliahanCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(6),
                             onTap: () {
                               Clipboard.setData(
-                                ClipboardData(text: data.linkZoom),
+                                ClipboardData(text: data.linkZoom ?? "Kosong"),
                               );
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(

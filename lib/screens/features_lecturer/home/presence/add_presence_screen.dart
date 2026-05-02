@@ -21,6 +21,9 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
 
   final jenisPertemuan = ['Teori', 'Praktik'];
 
+  final List<String> semuaPertemuan =
+      List.generate(32, (i) => (i + 1).toString());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,11 +64,51 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                                   .toList(),
                               onChanged: (val) {
                                 _controller.selectedProdiName.value = val ?? "";
+
+                                final selected = _controller.listProdi
+                                    .firstWhere(
+                                        (e) =>
+                                            e.namaProdi.toLowerCase().trim() ==
+                                            val!.toLowerCase().trim(),
+                                        orElse: () =>
+                                            DataProdi(id: '', namaProdi: ''));
+
+                                _controller.selectedProdiMap.value = {
+                                  'id': selected.id,
+                                  'nama_prodi': selected.namaProdi,
+                                };
+
+                                _controller.validateMatkul();
+                                _controller.validateDisabledPertemuans();
                               },
                             );
                           }),
 
                           const SizedBox(height: 12),
+
+                          Obx(() {
+                            return DropdownButtonFormField<String>(
+                              value:
+                                  _controller.selectedSemester.value.isNotEmpty
+                                      ? _controller.selectedSemester.value
+                                      : null,
+                              hint: const Text("Silahkan pilih semester"),
+                              items: ['1', '2', '3', '4', '5', '6', '7', '8']
+                                  .map((String value) {
+                                return DropdownMenuItem<String>(
+                                    value: value, child: Text(value));
+                              }).toList(),
+                              onChanged: (val) {
+                                _controller.selectedSemester.value = val!;
+                                _controller.validateMatkul();
+                                _controller.validateDisabledPertemuans();
+                              },
+                            );
+                          }),
+
+                          const SizedBox(
+                            height: 12,
+                          ),
 
                           /// ================= MATKUL =================
                           Obx(() {
@@ -75,13 +118,15 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                                   : null,
                               hint: const Text("Pilih matkul"),
                               items: _controller.listMatkul
-                                  .map((e) => DropdownMenuItem(
-                                        value: e.namaMatkul,
-                                        child: Text(e.namaMatkul ?? ""),
-                                      ))
+                                  .map((e) => e.namaMatkul)
+                                  .toSet()
+                                  .map((nama) => DropdownMenuItem(
+                                      value: nama, child: Text(nama ?? "")))
                                   .toList(),
                               onChanged: (val) {
-                                _controller.selectedMatkul.value = val ?? "";
+                                _controller.selectedMatkul.value = val!;
+                                _controller.validateMatkul();
+                                _controller.validateDisabledPertemuans();
                               },
                             );
                           }),
@@ -120,6 +165,80 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                           SizedBox(height: 12),
 
                           Obx(() {
+                            final selected = semuaPertemuan.contains(
+                                    _controller.selectedPertemuan.value)
+                                ? _controller.selectedPertemuan.value
+                                : null;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Pertemuan Ke-",
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: styles.getTextColor(context),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    hintText: "Silahkan pilih pertemuan",
+                                    hintStyle:
+                                        const TextStyle(color: Colors.grey),
+                                    filled: true,
+                                    fillColor: whiteColor,
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: styles.getOutlined(context)),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: styles.getOutlined(context)),
+                                    ),
+                                    focusedBorder: const OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color:
+                                              Color.fromARGB(255, 0, 80, 145),
+                                          width: 1),
+                                    ),
+                                  ),
+                                  value: selected,
+                                  items: semuaPertemuan.map((pertemuan) {
+                                    final isDisabled = _controller
+                                        .pertemuanTerpakai
+                                        .contains(int.parse(pertemuan));
+                                    return DropdownMenuItem<String>(
+                                      value: pertemuan,
+                                      enabled: !isDisabled,
+                                      child: Text(
+                                        !isDisabled
+                                            ? "Pertemuan $pertemuan"
+                                            : "Pertemuan $pertemuan telah digunakan",
+                                        style: TextStyle(
+                                          color: isDisabled
+                                              ? Colors.grey
+                                              : Colors.black,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      _controller.selectedPertemuan.value =
+                                          value;
+                                    }
+                                  },
+                                ),
+                              ],
+                            );
+                          }),
+
+                          SizedBox(
+                            height: 12,
+                          ),
+
+                          Obx(() {
                             return DropdownButtonFormField<String>(
                               value: _controller.selectedStatus.value.isNotEmpty
                                   ? _controller.selectedStatus.value
@@ -137,7 +256,6 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                             );
                           }),
 
-                          /// ================= LOKASI (FRONTEND ONLY) =================
                           Obx(() {
                             if (_controller.selectedStatus.value != "Aktif") {
                               return const SizedBox();
@@ -159,44 +277,117 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
 
                                 const SizedBox(height: 6),
 
-                                GestureDetector(
-                                  onTap: () {
-                                    _controller.openLocationPicker(context);
-                                  },
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border.all(color: Colors.blue),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            _controller.selectedLokasi.value
-                                                    .isNotEmpty
-                                                ? _controller
-                                                    .selectedLokasi.value
-                                                : "Pilih lokasi",
-                                            style: TextStyle(
-                                              color: _controller.selectedLokasi
-                                                      .value.isNotEmpty
-                                                  ? Colors.black
-                                                  : Colors.grey,
-                                            ),
-                                          ),
+                                DropdownButtonFormField<String>(
+                                    value: _controller
+                                            .selectedLokasiId.value.isNotEmpty
+                                        ? _controller.selectedLokasiId.value
+                                        : null,
+                                    hint: const Text("Pilih lokasi"),
+                                    decoration: InputDecoration(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 12, vertical: 14),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                          borderSide: const BorderSide(
+                                              color: Colors.blue),
                                         ),
-                                        const Icon(Icons.location_on,
-                                            color: Colors.blue),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                          borderSide: const BorderSide(
+                                              color: Colors.blue),
+                                        )),
+                                    items: [
+                                      ..._controller.listLokasi.map((lokasi) {
+                                        return DropdownMenuItem(
+                                          value: lokasi.id.toString(),
+                                          child: Text(lokasi.nama ?? ""),
+                                        );
+                                      }),
+                                      const DropdownMenuItem(
+                                          value: 'tambah_lokasi',
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.add_location_alt,
+                                                color: Colors.blue,
+                                                size: 18,
+                                              ),
+                                              SizedBox(
+                                                width: 8,
+                                              ),
+                                              Text(
+                                                "Tambah Lokasi Baru",
+                                                style: TextStyle(
+                                                    color: Colors.blue,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              )
+                                            ],
+                                          ))
+                                    ],
+                                    onChanged: (val) {
+                                      if (val == 'tambah_lokasi') {
+                                        _controller.selectedLokasiId.value =
+                                            _controller.selectedLokasiId.value;
 
-                                /// hanya display (tidak ke API)
+                                        _controller.openLocationPicker(context);
+                                      } else {
+                                        _controller.selectedLokasiId.value =
+                                            val!;
+
+                                        final lokasi = _controller.listLokasi
+                                            .firstWhere(
+                                                (e) => e.id.toString() == val);
+
+                                        _controller.selectedLokasiNama.value =
+                                            lokasi.nama ?? "";
+                                        _controller.latitude.value =
+                                            lokasi.latitude?.toString() ?? "";
+                                        _controller.longitude.value =
+                                            lokasi.longitude?.toString() ?? '';
+                                      }
+                                    }),
+
+                                // GestureDetector(
+                                //   onTap: () {
+                                //     _controller.openLocationPicker(context);
+                                //   },
+                                //   child: Container(
+                                //     width: double.infinity,
+                                //     padding: const EdgeInsets.symmetric(
+                                //         horizontal: 12, vertical: 16),
+                                //     decoration: BoxDecoration(
+                                //       color: Colors.white,
+                                //       border: Border.all(color: Colors.blue),
+                                //       borderRadius: BorderRadius.circular(4),
+                                //     ),
+                                //     child: Row(
+                                //       children: [
+                                //         Expanded(
+                                //           child: Text(
+                                //             _controller.selectedLokasi.value
+                                //                     .isNotEmpty
+                                //                 ? _controller
+                                //                     .selectedLokasi.value
+                                //                 : "Pilih lokasi",
+                                //             style: TextStyle(
+                                //               color: _controller.selectedLokasi
+                                //                       .value.isNotEmpty
+                                //                   ? Colors.black
+                                //                   : Colors.grey,
+                                //             ),
+                                //           ),
+                                //         ),
+                                //         const Icon(Icons.location_on,
+                                //             color: Colors.blue),
+                                //       ],
+                                //     ),
+                                //   ),
+                                // ),
+
                                 if (_controller.latitude.value.isNotEmpty)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 6),
@@ -215,18 +406,32 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                           const SizedBox(height: 24),
 
                           /// ================= SUBMIT =================
-                          Obx(() {
-                            return SizedBox(
+
+                          SizedBox(
                               width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: _controller.submitPresence,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: blueColor,
-                                ),
-                                child: const Text("Submit"),
-                              ),
-                            );
-                          }),
+                              child: Obx(() {
+                                return ElevatedButton(
+                                  onPressed: (_controller.isEnabled.value)
+                                      ? _controller.submitPresence
+                                      : null,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: blueColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
+                                  ),
+                                  child: Text(
+                                    "Submit",
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                              }))
                         ],
                       ),
                     ),

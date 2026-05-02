@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:logger/logger.dart';
-import 'package:stipres/controllers/features_lecturer/home/presences/presence_controller.dart';
 import 'package:stipres/models/lecturers/active_school_year_model.dart';
 import 'package:stipres/models/lecturers/data_prodi_model.dart';
 import 'package:stipres/models/lecturers/disabled_pertemuan_model.dart';
 import 'package:stipres/models/lecturers/matkul_model.dart';
 import 'package:stipres/models/lecturers/presence_request_model.dart';
+import 'package:stipres/models/location_model.dart';
 import 'package:stipres/screens/features_lecturer/home/presence/location_picker.dart';
 import 'package:stipres/screens/reusable/failed_dialog.dart';
 import 'package:stipres/screens/reusable/loading_screen.dart';
+import 'package:stipres/screens/reusable/location_dialog.dart';
 import 'package:stipres/screens/reusable/success_dialog.dart';
 import 'package:stipres/screens/reusable/upload_data_dialog.dart';
 import 'package:stipres/services/lecturer/add_presence_lecturer_service.dart';
+import 'package:stipres/services/lecturer/location_lecturer_service.dart';
+import 'package:stipres/services/location_permission_service.dart';
 
 class AddPresenceController extends GetxController {
   final dosenId = 0.obs;
@@ -39,10 +43,13 @@ class AddPresenceController extends GetxController {
   final pertemuanTerpakai = <int>[].obs;
   final listMatkul = <MatkulModel>[].obs;
   final listPertemuan = <DisabledPertemuansModel>[].obs;
+  final listLokasi = <LocationModel>[].obs;
   final selectedStatus = ''.obs;
-  var selectedLokasi = ''.obs;
-  var latitude = ''.obs;
-  var longitude = ''.obs;
+  final selectedLokasiId = ''.obs;
+  final selectedLokasiNama = ''.obs;
+  final latitude = ''.obs;
+  final longitude = ''.obs;
+  final radius = ''.obs;
   final listStatus = [
     'Aktif',
     'Libur',
@@ -58,6 +65,10 @@ class AddPresenceController extends GetxController {
 
   final AddPresenceLecturerService addPresenceLecturerService =
       AddPresenceLecturerService();
+  final LocationLecturerService locationLecturerService =
+      LocationLecturerService();
+  final LocationPermissionService locationPermissionService =
+      LocationPermissionService();
 
   @override
   void onInit() {
@@ -65,6 +76,9 @@ class AddPresenceController extends GetxController {
     dosenId.value = _box.read("dosen_id");
     fetchProdi();
     fetchTahunAjaran();
+    fetchLocation();
+    // final args
+    if (Get.arguments == null) {}
   }
 
   void validateMatkul() async {
@@ -96,8 +110,9 @@ class AddPresenceController extends GetxController {
   void fetchMatkul(String prodiId, String semester) async {
     try {
       listMatkul.clear();
+      final semesterr = int.parse(semester);
       final result =
-          await addPresenceLecturerService.fetchMatkul(prodiId, semester);
+          await addPresenceLecturerService.fetchMatkul(prodiId, semesterr);
 
       if (result.status == "success") {
         final matkulList = result.data!.whereType<MatkulModel>().toList();
@@ -153,6 +168,101 @@ class AddPresenceController extends GetxController {
       if (result.status == "success" && result.data != null) {
         final prodiList = result.data!.whereType<DataProdi>().toList();
         listProdi.assignAll(prodiList);
+      }
+    } catch (e) {
+      log.f("Error: $e");
+    }
+  }
+
+  // Future<void> openLocationPicker(BuildContext context) async {
+  //   final result = await Navigator.push(
+  //     context,
+  //     MaterialPageRoute(builder: (_) => const LocationPickerScreen()),
+  //   );
+
+  //   if (result != null) {
+  //     selectedLokasiNama.value = result.name;
+  //     latitude.value = result.latitude.toString();
+  //     longitude.value = result.longitude.toString();
+  //   }
+  // }
+
+  Future<void> openLocationPicker(BuildContext context) async {
+    bool ready = await ensureLocationReady();
+    if (!ready) return;
+
+    final result = await Get.toNamed("/lecturer/location-picker");
+
+    if (result != null) {
+      selectedLokasiNama.value = result['nama'];
+
+      final lat = _toDouble(result['latitude']);
+      final long = _toDouble(result['longitude']);
+      final rad = _toInt(result['radius']);
+
+      latitude.value = lat.toString();
+      longitude.value = long.toString();
+      radius.value = rad.toString();
+
+      await storeNewLocation(selectedLokasiNama.value, latitude.value,
+          longitude.value, radius.value);
+    }
+  }
+
+  Future<bool> ensureLocationReady() async {
+    bool serviceEnabled =
+        await locationPermissionService.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      showEnableGPSDialog();
+      return false;
+    }
+
+    LocationPermission permission =
+        await locationPermissionService.checkPermission();
+
+    if (permission == LocationPermission.deniedForever) {
+      showPermissionDeniedDialog();
+      return false;
+    }
+    return true;
+  }
+
+  void fetchLocation() async {
+    try {
+      final result = await locationLecturerService.fetchLocationAvailable();
+
+      if (result.status == "success" && result.data != null) {
+        final lokasiList = result.data!.whereType<LocationModel>().toList();
+        listLokasi.assignAll(lokasiList);
+      }
+    } catch (e) {
+      log.f("Error: $e");
+    }
+  }
+
+  Future<void> storeNewLocation(
+      String nama, String latitudee, String longitudee, String radius) async {
+    try {
+      showLoading();
+      final result = await locationLecturerService.storeLocation(
+          nama, latitudee, longitudee, radius);
+
+      if (result.status == "success") {
+        Get.back();
+        fetchLocation();
+      } else {
+        Get.back();
+        Future.delayed(const Duration(milliseconds: 100), () {
+          Get.dialog(
+            FailedDialog(
+              title: "Nama sudah ada",
+              subtitle: result.message ?? "Nama sudah dipakai",
+              gifAssetPath: 'assets/gif/failed_animation.gif',
+            ),
+          );
+        });
+        longitude.value = "";
+        latitude.value = "";
       }
     } catch (e) {
       log.f("Error: $e");
@@ -295,6 +405,7 @@ class AddPresenceController extends GetxController {
         pertemuanKe: int.parse(selectedPertemuan.value),
         jenisPertemuan: selectedJenis.value,
         status: selectedStatus.value,
+        lokasiId: int.parse(selectedLokasiId.value)
       ));
 
       if (result.status == "success") {
@@ -470,6 +581,7 @@ class AddPresenceController extends GetxController {
     log.d("Jam Awal Str : ${jamAwalStr.value}");
     log.d("Jam Akhir Str: ${jamAkhirStr.value}");
     log.d("LinkZoom : ${linkZoomController.text}");
+    log.d("SelectedLokasi ID : ${selectedLokasiId.value}");
 
     void showValidationDialog(String message) {
       isEnabled.value = false;
@@ -487,7 +599,8 @@ class AddPresenceController extends GetxController {
       selectedStatus.value,
       selectedMatkulMap['id'],
       tahunAjaranId.value.toString(),
-      selectedDate.value
+      selectedDate.value,
+      selectedLokasiId.value
     ];
 
     if (requiredFields.any((e) => e == null || e.toString().isEmpty)) {
@@ -548,6 +661,34 @@ class AddPresenceController extends GetxController {
     return false;
   }
 
+  double _toDouble(dynamic value) {
+    if (value == null) return 0.0;
+
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+
+    if (value is String) {
+      return double.tryParse(value) ?? 0.0;
+    }
+
+    throw Exception("Invalid double: $value");
+  }
+
+  int _toInt(dynamic value) {
+    if (value == null) return 0;
+
+    if (value is int) return value;
+
+    if (value is double) return value.round(); // 🔥 penting
+
+    if (value is String) {
+      final parsed = double.tryParse(value);
+      return parsed?.round() ?? 0;
+    }
+
+    throw Exception("Invalid int: $value");
+  }
+
   String timeOfDayToString(TimeOfDay time) {
     final hour = time.hour.toString().padLeft(2, '0');
     final minute = time.minute.toString().padLeft(2, '0');
@@ -557,19 +698,6 @@ class AddPresenceController extends GetxController {
   TimeOfDay stringToTimeOfDay(String time) {
     final parts = time.split(':');
     return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
-  }
-
-  Future<void> openLocationPicker(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const LocationPickerScreen()),
-    );
-
-    if (result != null) {
-      selectedLokasi.value = result.name;
-      latitude.value = result.latitude.toString();
-      longitude.value = result.longitude.toString();
-    }
   }
 
   void showLoading() {

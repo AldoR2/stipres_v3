@@ -1,5 +1,7 @@
 class PresensiModelApi {
   int presensisId;
+  int lokasiId;
+  int namaLokasi;
   String nim;
   int semester;
   String presensiId;
@@ -7,11 +9,13 @@ class PresensiModelApi {
   String namaMatkul;
   String? namaRuangan;
   String durasiMatkul;
-  String linkZoom;
+  String? linkZoom;
 
   PresensiModelApi(
       {required this.nim,
       required this.presensisId,
+      required this.lokasiId,
+      required this.namaLokasi,
       required this.semester,
       required this.presensiId,
       required this.durasiPresensi,
@@ -24,12 +28,14 @@ class PresensiModelApi {
     return PresensiModelApi(
         nim: json['nim'],
         presensisId: json['presensis_id'],
+        lokasiId: json['lokasi_id'],
+        namaLokasi: json['nama_lokasi'],
         semester: json['semester'],
         presensiId: json['presensi_id'],
         durasiPresensi: json['durasi_presensi'],
         namaMatkul: json['nama_matkul'],
         namaRuangan: json['nama_ruangan'],
         durasiMatkul: json['durasi_matkul'],
-        linkZoom: json['link_zoom']);
+        linkZoom: json['link_zoom'] ?? "Kosong");
   }
 }

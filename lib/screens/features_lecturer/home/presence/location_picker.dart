@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:stipres/constants/styles.dart';
+import 'dart:math' as math;
 import 'dart:async';
 import 'dart:convert';
 import 'package:stipres/screens/reusable/custom_header.dart';
@@ -15,12 +17,13 @@ class PickedLocation {
   final String name;
   final double latitude;
   final double longitude;
+  final double radius;
 
-  const PickedLocation({
-    required this.name,
-    required this.latitude,
-    required this.longitude,
-  });
+  const PickedLocation(
+      {required this.name,
+      required this.latitude,
+      required this.longitude,
+      required this.radius});
 }
 
 class LocationPickerScreen extends StatefulWidget {
@@ -39,6 +42,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   String _locationName = 'Politeknik Negeri Jember';
   bool _isLoading = false;
   bool _hasPickedLocation = false;
+  double _radius = 100;
+  double _mapRotation = 0.0;
 
   @override
   void dispose() {
@@ -57,9 +62,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         'https://nominatim.openstreetmap.org/search'
         '?q=${Uri.encodeComponent(query)}&format=json&limit=1',
       );
-      final response = await http
-          .get(uri, headers: {'User-Agent': 'StipresApp/1.0'})
-          .timeout(const Duration(seconds: 10));
+      final response = await http.get(uri, headers: {
+        'User-Agent': 'StipresApp/1.0'
+      }).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final List data = json.decode(response.body);
@@ -96,9 +101,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         'https://nominatim.openstreetmap.org/reverse'
         '?lat=${pos.latitude}&lon=${pos.longitude}&format=json',
       );
-      final response = await http
-          .get(uri, headers: {'User-Agent': 'StipresApp/1.0'})
-          .timeout(const Duration(seconds: 10));
+      final response = await http.get(uri, headers: {
+        'User-Agent': 'StipresApp/1.0'
+      }).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -184,8 +189,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(children: [
           const Icon(Icons.warning_amber_rounded, color: Colors.orange),
           const SizedBox(width: 8),
@@ -195,8 +199,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child:
-                const Text('Tutup', style: TextStyle(color: Colors.grey)),
+            child: const Text('Tutup', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -217,15 +220,216 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   }
 
   /// Submit lokasi → pop dengan membawa hasil PickedLocation
-  void _confirmLocation() {
-    Navigator.pop(
-      context,
-      PickedLocation(
-        name: _locationName,
-        latitude: _pinPosition.latitude,
-        longitude: _pinPosition.longitude,
-      ),
+  // void _confirmLocation() {
+  //   Navigator.pop(
+  //     context,
+  //     PickedLocation(
+  //       name: _locationName,
+  //       latitude: _pinPosition.latitude,
+  //       longitude: _pinPosition.longitude,
+  //     ),
+  //   );
+  // }
+
+  void _showSaveLocationDialog() {
+    final nameController = TextEditingController(text: "Gedung");
+
+    showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (ctx) => Padding(
+              padding: EdgeInsetsGeometry.only(
+                  bottom: MediaQuery.of(ctx).viewInsets.bottom),
+              child: Container(
+                decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20))),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(2)),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Text(
+                      'Simpan Lokasi',
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87),
+                    ),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    Text(
+                      'Beri nama untuk lokasi presensi ini',
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13, color: Colors.grey.shade600),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: blueColor.withValues(alpha: 0.06),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                            color: blackColor.withValues(alpha: 0.2)),
+                      ),
+                      child: Column(
+                        children: [
+                          _infoRow(
+                              Icons.location_on,
+                              'Koordinat',
+                              '${_pinPosition.latitude.toStringAsFixed(6)}, '
+                                  '${_pinPosition.longitude.toStringAsFixed(6)}'),
+                          const SizedBox(
+                            height: 6,
+                          ),
+                          _infoRow(Icons.radar, 'Radius',
+                              '${_radius.toInt()} meter'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    TextFormField(
+                      controller: nameController,
+                      autofocus: true,
+                      style: GoogleFonts.plusJakartaSans(fontSize: 14),
+                      decoration: InputDecoration(
+                        labelText: 'Nama Lokasi',
+                        labelStyle: GoogleFonts.plusJakartaSans(
+                            color: Colors.grey.shade600, fontSize: 13),
+                        prefixIcon: Icon(
+                          Icons.edit_location_alt,
+                          color: blueColor,
+                          size: 20,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade50,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: blueColor, width: 1.5),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          final nama = nameController.text.trim();
+                          if (nama.isEmpty) {
+                            Get.snackbar(
+                                "Gagal", "Nama lokasi tidak boleh ksoong");
+                            return;
+                          }
+                          Get.back();
+                          Get.back(result: {
+                            'nama': nama,
+                            "latitude": _pinPosition.latitude,
+                            "longitude": _pinPosition.longitude,
+                            "radius": _radius,
+                          });
+                        },
+                        label: Text(
+                          "Simpan & Gunakan Lokasi",
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: blueColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                            elevation: 0),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ));
+  }
+
+  Widget _infoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 16,
+          color: blueColor,
+        ),
+        const SizedBox(
+          width: 8,
+        ),
+        Text(
+          '$label: ',
+          style: GoogleFonts.plusJakartaSans(
+              fontSize: 12, color: Colors.grey.shade600),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87),
+            overflow: TextOverflow.ellipsis,
+          ),
+        )
+      ],
     );
+  }
+
+  // ─── Hitung polygon lingkaran untuk radius overlay ────────
+
+  List<LatLng> _buildCirclePoints(LatLng center, double radiusInMeters) {
+    const int points = 64;
+    const double earthRadius = 6378137.0;
+    final List<LatLng> result = [];
+
+    for (int i = 0; i < points; i++) {
+      final double angle = (2 * math.pi / points) * i;
+      final double dLat = radiusInMeters / earthRadius;
+      final double dLon = radiusInMeters /
+          (earthRadius * math.cos(center.latitude * math.pi / 180));
+
+      final double lat =
+          center.latitude + (dLat * math.sin(angle)) * (180 / math.pi);
+      final double lon =
+          center.longitude + (dLon * math.cos(angle)) * (180 / math.pi);
+      result.add(LatLng(lat, lon));
+    }
+    return result;
   }
 
   // ─── BUILD ────────────────────────────────────────────────
@@ -261,8 +465,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                               child: SizedBox(
                                 width: 16,
                                 height: 16,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               ),
                             )
                           : null,
@@ -278,8 +482,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide:
-                            BorderSide(color: blueColor, width: 1.5),
+                        borderSide: BorderSide(color: blueColor, width: 1.5),
                       ),
                     ),
                   ),
@@ -309,25 +512,39 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                 FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    initialCenter: _pinPosition,
-                    initialZoom: 16,
-                    onTap: (_, latLng) {
-                      setState(() => _pinPosition = latLng);
-                      _reverseGeocode(latLng);
-                    },
-                  ),
+                      initialCenter: _pinPosition,
+                      initialZoom: 16,
+                      onTap: (_, latLng) {
+                        setState(() => _pinPosition = latLng);
+                        _reverseGeocode(latLng);
+                      },
+                      onMapEvent: (event) {
+                        if (event is MapEventRotate) {
+                          setState(() {
+                            _mapRotation = event.camera.rotation;
+                          });
+                        }
+                      }),
                   children: [
                     TileLayer(
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.stipres.app',
                     ),
+                    PolygonLayer(polygons: [
+                      Polygon(
+                          points: _buildCirclePoints(_pinPosition, _radius),
+                          color: blueColor.withValues(alpha: 0.15),
+                          borderColor: blueColor.withValues(alpha: 0.6),
+                          borderStrokeWidth: 2)
+                    ]),
                     MarkerLayer(
                       markers: [
                         Marker(
                           point: _pinPosition,
                           width: 50,
                           height: 50,
+                          rotate: true,
                           child: Icon(
                             Icons.location_pin,
                             color: blueColor,
@@ -392,8 +609,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.location_on,
-                              color: blueColor, size: 16),
+                          Icon(Icons.location_on, color: blueColor, size: 16),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
@@ -413,9 +629,102 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   ),
                 ),
 
+                // ── Radius control panel ──
+                Positioned(
+                  bottom: 0,
+                  left: 16,
+                  right: 16,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.radar, color: blueColor, size: 18),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Radius Presensi',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: blueColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '${_radius.toInt()} m',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: blueColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: blueColor,
+                            inactiveTrackColor: blueColor.withOpacity(0.2),
+                            thumbColor: blueColor,
+                            overlayColor: blueColor.withOpacity(0.1),
+                            trackHeight: 4,
+                            thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 10),
+                          ),
+                          child: Slider(
+                            value: _radius,
+                            min: 10,
+                            max: 700,
+                            divisions: 69, // step 10m
+                            onChanged: (val) {
+                              setState(() => _radius = val);
+                            },
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('10 m',
+                                style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11, color: Colors.grey.shade500)),
+                            Text('700 m',
+                                style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11, color: Colors.grey.shade500)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
                 // ── Info tap peta ──
                 Positioned(
-                  bottom: 90,
+                  bottom: 140,
                   left: 0,
                   right: 0,
                   child: Center(
@@ -448,9 +757,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               width: double.infinity,
               height: 52,
               child: ElevatedButton.icon(
-                onPressed: _hasPickedLocation ? _confirmLocation : null,
-                icon: const Icon(Icons.check_circle_outline,
-                    color: Colors.white),
+                onPressed: _hasPickedLocation ? _showSaveLocationDialog : null,
+                icon:
+                    const Icon(Icons.check_circle_outline, color: Colors.white),
                 label: Text(
                   'Konfirmasi Lokasi',
                   style: GoogleFonts.plusJakartaSans(
@@ -485,8 +794,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.12), blurRadius: 4),
+            BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 4),
           ],
         ),
         child: Icon(icon, size: 20, color: blueColor),

@@ -15,7 +15,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  google_fonts: ^6.2.1
+  google_fonts: ^8.0.2
   flutter_native_splash: ^2.4.6
   pin_code_fields: ^8.0.1
   flutter_svg: ^2.0.17
@@ -47,9 +47,15 @@ dependencies:
   internet_connection_checker: ^3.0.1
   connectivity_plus: ^6.1.4
   camera: ^0.10.5+5
-  flutter_map: ^7.0.2
+  geolocator: ^14.0.2
+  flutter_map: ^8.3.0
   latlong2: ^0.9.1
-  geolocator: ^11.0.0
+  device_info_plus: ^12.4.0
+  flutter_jailbreak_detection:
+    git:
+      url: https://github.com/pdurasie-ecovery/flutter_jailbreak_detection.git
+      ref: add-namespace
+  
 
 dev_dependencies:
   flutter_test:

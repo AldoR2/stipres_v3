@@ -4,7 +4,7 @@ class LectureModelApi {
   final int semester;
   final String durasiPresensi;
   String? namaDosen;
-  final String linkZoom;
+  String? linkZoom;
   String tglPresensi;
 
   LectureModelApi({
@@ -24,7 +24,7 @@ class LectureModelApi {
       semester: json["semester"],
       durasiPresensi: json["durasi_presensi"],
       namaDosen: json["nama_dosen"],
-      linkZoom: json["link_zoom"],
+      linkZoom: json["link_zoom"] ?? "Kosong",
       tglPresensi: json["tgl_presensi"],
     );
   }

@@ -31,6 +31,8 @@ class PresenceController extends GetxController {
         final List<PresensiModelApi> updatedList = result.data!.map((presence) {
           if (presence.namaRuangan == null) {
             presence.namaRuangan = "Online";
+          } else if (presence.linkZoom == null) {
+            presence.linkZoom = "Null";
           } else {
             presence.namaRuangan = presence.namaRuangan;
           }

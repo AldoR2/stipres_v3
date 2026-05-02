@@ -44,6 +44,7 @@ import 'package:stipres/screens/features_lecturer/home/all_schedule_screen.dart'
     as lecturer;
 import 'package:stipres/screens/features_lecturer/home/offline_screen.dart';
 import 'package:stipres/screens/features_lecturer/home/presence/add_presence_screen.dart';
+import 'package:stipres/screens/features_lecturer/home/presence/location_picker.dart';
 import 'package:stipres/screens/features_lecturer/home/presence/presence_detail_screen.dart';
 import 'package:stipres/screens/features_student/account/alamat_email.dart'
     as student;
@@ -129,6 +130,10 @@ class AppScreens {
         name: "/lecturer/add-presence-screen",
         page: () => AddPresenceScreen(),
         binding: AddPresenceBinding()),
+    GetPage(
+        name: "/lecturer/location-picker",
+        page: () => LocationPickerScreen(),
+        ),
     GetPage(
         name: "/lecturer/all-schedule-screen",
         page: () => lecturer.AllScheduleScreen(),

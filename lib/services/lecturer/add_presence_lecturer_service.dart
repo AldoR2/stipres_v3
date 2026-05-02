@@ -24,7 +24,7 @@ class AddPresenceLecturerService extends GetxService {
   final Logger log = Logger();
 
   Future<BaseResponse<List<MatkulModel>>> fetchMatkul(
-      String prodiId, String semester) async {
+      String prodiId, int semester) async {
     try {
       final token = await _box.read("auth_token");
 
