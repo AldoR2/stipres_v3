@@ -56,7 +56,7 @@ class LectureStudentService extends GetxService {
       final token = await _box.read("auth_token");
 
       final url = Uri.parse(
-          "$_baseUrl/lectureContentStudent?presensis_id=$presensisId");
+          "$_baseUrl/lectureContentStudent?presensi_id=$presensisId");
       log.d(url);
       final response = await http.get(url, headers: {
         'Accept': 'application/json',

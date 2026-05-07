@@ -20,7 +20,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   cameras = await availableCameras();
-  
+
   await initializeDateFormatting("id_ID", null);
   tzdata.initializeTimeZones();
   AuthBinding().dependencies();

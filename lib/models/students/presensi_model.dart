@@ -27,7 +27,7 @@ class PresensiModelApi {
   factory PresensiModelApi.fromJson(Map<String, dynamic> json) {
     return PresensiModelApi(
         nim: json['nim'],
-        presensisId: json['presensis_id'],
+        presensisId: json['presensi_id'],
         lokasiId: json['lokasi_id'],
         namaLokasi: json['nama_lokasi'],
         semester: json['semester'],

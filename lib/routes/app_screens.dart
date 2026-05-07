@@ -23,6 +23,7 @@ import 'package:stipres/bindings/features_student/biometric_binding.dart';
 import 'package:stipres/bindings/features_student/calendar_binding.dart';
 import 'package:stipres/bindings/features_student/dashboard_binding.dart'
     as student;
+import 'package:stipres/bindings/features_student/geolocation_binding.dart';
 import 'package:stipres/bindings/features_student/lecture_binding.dart';
 import 'package:stipres/bindings/features_student/notification_binding.dart';
 import 'package:stipres/bindings/features_student/presence_binding.dart';
@@ -78,7 +79,9 @@ import 'package:stipres/screens/features_student/home/notifications/notification
 import 'package:stipres/screens/features_lecturer/home/notifications/notification_screen.dart'
     as lecturer;
 import 'package:stipres/screens/features_student/home/offline_screen.dart';
+import 'package:stipres/screens/features_student/home/presence/face_recognition_screen.dart';
 import 'package:stipres/screens/features_student/home/presence/presence_content_screen.dart';
+import 'package:stipres/screens/features_student/home/presence/presence_result_screen.dart';
 import 'package:stipres/screens/features_student/home/presence/presence_screen.dart';
 import 'package:stipres/screens/features_lecturer/home/presence/presence_screen.dart'
     as lecturer;
@@ -131,9 +134,9 @@ class AppScreens {
         page: () => AddPresenceScreen(),
         binding: AddPresenceBinding()),
     GetPage(
-        name: "/lecturer/location-picker",
-        page: () => LocationPickerScreen(),
-        ),
+      name: "/lecturer/location-picker",
+      page: () => LocationPickerScreen(),
+    ),
     GetPage(
         name: "/lecturer/all-schedule-screen",
         page: () => lecturer.AllScheduleScreen(),
@@ -222,6 +225,14 @@ class AppScreens {
         name: "/student/presence-content-screen",
         page: () => PresenceContentScreen(),
         binding: PresenceContentBinding()),
+    GetPage(
+        name: "/student/face-recognition-screen",
+        page: () => FaceRecognitionScreen(),
+        binding: PresenceContentBinding()),
+    // GetPage(
+    //     name: "/student/geolocation-screen",
+    //     page: () => PresensiResultScreen(),
+    //     binding: GeolocationBinding()),
     GetPage(
         name: "/student/lecture-content-screen",
         page: () => LectureContentScreen())

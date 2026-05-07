@@ -65,6 +65,7 @@ class PresenceContentService extends GetxService {
       String? ext) async {
     try {
       final token = await _box.read("auth_token");
+      log.d("Path: ${bukti!.path}");
 
       final url = Uri.parse("${global}activity/presenceActivity");
       log.d(url);
@@ -82,13 +83,13 @@ class PresenceContentService extends GetxService {
       });
 
       if (alasan != null && alasan.isNotEmpty) {
-        request.fields['alasan'] = alasan;
+        request.fields['keterangan'] = alasan;
       }
 
       if (bukti != null && ext != null && ext.isNotEmpty) {
         final contentType = getContentTypeFromExtension(ext);
         var multipartFile = await http.MultipartFile.fromPath(
-            'bukti', bukti.path,
+            'surat', bukti.path,
             filename: path.basename(bukti.path), contentType: contentType);
         request.files.add(multipartFile);
       }

@@ -1,6 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:stipres/constants/styles.dart';
+import 'package:stipres/controllers/features_student/home/face_recognition_controller.dart';
 import 'package:stipres/main.dart';
 import 'package:stipres/screens/reusable/custom_header.dart';
 
@@ -21,6 +23,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
     _initCamera();
   }
 
+
   void _initCamera() {
     if (cameras.isEmpty) return;
 
@@ -29,6 +32,8 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       orElse: () => cameras.first,
     );
 
+  Get.find<FaceRecognitionController>();
+  
     _controller = CameraController(
       frontCamera,
       ResolutionPreset.medium,

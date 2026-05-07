@@ -14,6 +14,7 @@ import 'package:stipres/models/lecturers/disabled_pertemuan_model.dart';
 import 'package:stipres/models/lecturers/matkul_model.dart';
 import 'package:stipres/models/lecturers/presence_id_model.dart';
 import 'package:stipres/models/lecturers/presence_request_model.dart';
+import 'package:stipres/models/ruangan_model.dart';
 import 'package:stipres/services/token_service.dart';
 
 class AddPresenceLecturerService extends GetxService {
@@ -85,6 +86,40 @@ class AddPresenceLecturerService extends GetxService {
           body,
           (dataJson) => (dataJson as List)
               .map((e) => DataProdi.fromJson(e as Map<String, dynamic>))
+              .toList());
+    } catch (e) {
+      log.f("Error: $e");
+      return BaseResponse(
+          status: "Error", message: "Terjadi kesalahan $e", data: null);
+    }
+  }
+
+  Future<BaseResponse<List<RuanganModel>>> fetchRuangan() async {
+    try {
+      final token = await _box.read("auth_token");
+
+      final url = Uri.parse("$_baseUrl/presence/rooms");
+      log.d(url);
+      final response = await http.get(url, headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
+
+      final body = jsonDecode(response.body);
+      log.d(body);
+
+      if (response.statusCode == 401) {
+        log.f("Response 401");
+        final refreshSuccess = await tokenService.refreshToken();
+        if (refreshSuccess) {
+          return await fetchRuangan();
+        }
+      }
+
+      return BaseResponse.fromJson(
+          body,
+          (dataJson) => (dataJson as List)
+              .map((e) => RuanganModel.fromJson(e as Map<String, dynamic>))
               .toList());
     } catch (e) {
       log.f("Error: $e");
@@ -175,8 +210,7 @@ class AddPresenceLecturerService extends GetxService {
       int pertemuan,
       String status,
       int matkulId,
-      int tahunAjaran
-      ) async {
+      int tahunAjaran) async {
     try {
       final token = await _box.read("auth_token");
       log.d("Param : $prodiId");

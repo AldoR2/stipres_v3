@@ -20,6 +20,8 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
   final _controller = Get.find<AddPresenceController>();
 
   final jenisPertemuan = ['Teori', 'Praktik'];
+  final kategoriPresensi = ['Luring', 'Daring'];
+  ValueChanged<String>? onChanged;
 
   final List<String> semuaPertemuan =
       List.generate(32, (i) => (i + 1).toString());
@@ -106,6 +108,52 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                             );
                           }),
 
+                          const SizedBox(height: 12),
+                          Obx(() {
+                            final bool enabled =
+                                _controller.tahunAjaran.value.isNotEmpty;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Tahun Ajaran",
+                                    style: GoogleFonts.plusJakartaSans(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                        color: styles.getTextColor(context))),
+                                const SizedBox(height: 6),
+                                TextFormField(
+                                  style: TextStyle(
+                                    color: enabled
+                                        ? styles.getTextColor(context)
+                                        : Colors.grey[600],
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText:
+                                        _controller.tahunAjaran.value.isNotEmpty
+                                            ? _controller.tahunAjaran.value
+                                            : null,
+                                    hintStyle: TextStyle(color: Colors.black),
+                                    filled: true,
+                                    fillColor: enabled
+                                        ? Colors.white
+                                        : Colors.grey[200],
+                                    border: OutlineInputBorder(),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.blue),
+                                    ),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade400),
+                                    ),
+                                  ),
+                                  readOnly: true,
+                                  enabled: enabled,
+                                ),
+                              ],
+                            );
+                          }),
+
                           const SizedBox(
                             height: 12,
                           ),
@@ -124,8 +172,20 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                                       value: nama, child: Text(nama ?? "")))
                                   .toList(),
                               onChanged: (val) {
-                                _controller.selectedMatkul.value = val!;
-                                _controller.validateMatkul();
+                                final selected =
+                                    _controller.listMatkul.firstWhere(
+                                  (e) => e.namaMatkul == val,
+                                  orElse: () => MatkulModel(
+                                      idMatkul: 0,
+                                      kodeMatkul: '',
+                                      namaMatkul: ''),
+                                );
+                                _controller.selectedMatkul.value = val ?? "";
+                                _controller.selectedMatkulMap.value = {
+                                  'id': selected.idMatkul.toString(),
+                                  'nama_matkul': selected.namaMatkul!,
+                                  'kode_matkul': selected.kodeMatkul!,
+                                };
                                 _controller.validateDisabledPertemuans();
                               },
                             );
@@ -265,7 +325,259 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const SizedBox(height: 12),
+                                Obx(() {
+                                  final selected = jenisPertemuan
+                                          .toList()
+                                          .contains(
+                                              _controller.selectedJenis.value)
+                                      ? _controller.selectedJenis.value
+                                      : null;
+                                  bool? enabledItem;
 
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text("Jenis Pertemuan",
+                                          style: GoogleFonts.plusJakartaSans(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14,
+                                              color: styles
+                                                  .getTextColor(context))),
+                                      const SizedBox(height: 6),
+                                      DropdownButtonFormField<String>(
+                                        value: selected,
+                                        hint: Text(
+                                            "Silahkan pilih jenis pertemuan"),
+                                        items: jenisPertemuan
+                                            .toList()
+                                            .map((e) => DropdownMenuItem(
+                                                value: e ?? '',
+                                                enabled: (enabledItem != null)
+                                                    ? enabledItem
+                                                    : true,
+                                                child: Text(e ?? '')))
+                                            .toList(),
+                                        onChanged: (val) {
+                                          _controller.selectedJenis.value =
+                                              val ?? "";
+                                        },
+                                        decoration: InputDecoration(
+                                          hintText:
+                                              "Silahkan pilih jenis pertemuan",
+                                          hintStyle: const TextStyle(
+                                              color: Colors.grey),
+                                          filled: true,
+                                          fillColor: whiteColor,
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: styles
+                                                    .getOutlined(context)),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: styles.getOutlined(
+                                                    context)), // tambahkan ini
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: const Color.fromARGB(
+                                                    255, 0, 80, 145),
+                                                width: 1),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                                const SizedBox(
+                                  height: 12,
+                                ),
+                                Row(
+                                  children: [
+                                    Obx(() {
+                                      return Expanded(
+                                        child: _buildTimePicker(
+                                          label: 'Jam Awal',
+                                          time: _controller.jamAwal.value,
+                                          onTap: () async {
+                                            final picked = await showTimePicker(
+                                                context: context,
+                                                initialTime: TimeOfDay.now());
+                                            if (picked != null)
+                                              _controller.jamAwal.value =
+                                                  picked;
+                                          },
+                                        ),
+                                      );
+                                    }),
+                                    const Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 8, right: 8, top: 20),
+                                      child: Icon(Icons.swap_horiz,
+                                          size: 20, color: Colors.blue),
+                                    ),
+                                    Obx(() {
+                                      return Expanded(
+                                        child: _buildTimePicker(
+                                          label: 'Jam Akhir',
+                                          time: _controller.jamAkhir.value,
+                                          onTap: () async {
+                                            final picked = await showTimePicker(
+                                                context: context,
+                                                initialTime: TimeOfDay.now());
+                                            if (picked != null)
+                                              _controller.jamAkhir.value =
+                                                  picked;
+                                          },
+                                        ),
+                                      );
+                                    })
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 12,
+                                ),
+                                Obx(() {
+                                  final selected = kategoriPresensi
+                                          .toList()
+                                          .contains(_controller
+                                              .selectedKategori.value)
+                                      ? _controller.selectedKategori.value
+                                      : null;
+                                  return _buildDropdownField(
+                                    label: "Jenis Presensi",
+                                    value: selected,
+                                    hint: "Silahkan pilih jenis presensi",
+                                    items: kategoriPresensi,
+                                    onChanged: (val) {
+                                      _controller.selectedKategori.value = val!;
+
+                                      if (_controller.selectedKategori.value ==
+                                          'Luring') {
+                                        _controller.linkZoomController.text =
+                                            '';
+                                      } else {
+                                        _controller.selectedRuanganID.value =
+                                            '';
+                                      }
+                                    },
+                                  );
+                                }),
+                                const SizedBox(
+                                  height: 12,
+                                ),
+                                Obx(() {
+                                  if (_controller.selectedKategori.value ==
+                                      'Daring') {
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Link Zoom  ",
+                                            style: GoogleFonts.plusJakartaSans(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                                color: styles
+                                                    .getTextColor(context))),
+                                        const SizedBox(height: 6),
+                                        TextFormField(
+                                          controller:
+                                              _controller.linkZoomController,
+                                          onChanged: onChanged,
+                                          maxLength: 254,
+                                          decoration: InputDecoration(
+                                            hintText: "Masukkan link zoom",
+                                            hintStyle:
+                                                TextStyle(color: Colors.grey),
+                                            filled: true,
+                                            fillColor: whiteColor,
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: const Color.fromARGB(
+                                                      255, 79, 176, 255)),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors
+                                                      .blue), // tambahkan ini
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: const Color.fromARGB(
+                                                      255, 0, 80, 145),
+                                                  width: 1),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    );
+                                  } else {
+                                    final selected = _controller.listRuangan
+                                            .toList()
+                                            .contains(_controller
+                                                .selectedRuanganID.value)
+                                        ? _controller.selectedRuanganID.value
+                                        : null;
+                                    bool? enabledItem;
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text("Ruangan  ",
+                                            style: GoogleFonts.plusJakartaSans(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                                color: styles
+                                                    .getTextColor(context))),
+                                        const SizedBox(height: 6),
+                                        DropdownButtonFormField<String>(
+                                          value: selected,
+                                          hint: Text("Silahkan pilih ruangan"),
+                                          items: _controller.listRuangan
+                                              .map((e) => DropdownMenuItem(
+                                                  value: e.namaRuangan ?? '',
+                                                  child: Text(
+                                                      e.namaRuangan ?? '')))
+                                              .toList(),
+                                          onChanged: (val) {
+                                            _controller.selectedRuanganID
+                                                .value = val ?? "";
+                                          },
+                                          decoration: InputDecoration(
+                                            hintText: "Silahkan pilih ruangan",
+                                            hintStyle: const TextStyle(
+                                                color: Colors.grey),
+                                            filled: true,
+                                            fillColor: whiteColor,
+                                            border: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: styles
+                                                      .getOutlined(context)),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: styles.getOutlined(
+                                                      context)), // tambahkan ini
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: const Color.fromARGB(
+                                                      255, 0, 80, 145),
+                                                  width: 1),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                }),
+                                const SizedBox(height: 6),
+                                const SizedBox(
+                                  height: 12,
+                                ),
                                 Text(
                                   "Lokasi Presensi",
                                   style: GoogleFonts.plusJakartaSans(
@@ -274,9 +586,7 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                                     color: styles.getTextColor(context),
                                   ),
                                 ),
-
                                 const SizedBox(height: 6),
-
                                 DropdownButtonFormField<String>(
                                     value: _controller
                                             .selectedLokasiId.value.isNotEmpty
@@ -350,44 +660,6 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                                             lokasi.longitude?.toString() ?? '';
                                       }
                                     }),
-
-                                // GestureDetector(
-                                //   onTap: () {
-                                //     _controller.openLocationPicker(context);
-                                //   },
-                                //   child: Container(
-                                //     width: double.infinity,
-                                //     padding: const EdgeInsets.symmetric(
-                                //         horizontal: 12, vertical: 16),
-                                //     decoration: BoxDecoration(
-                                //       color: Colors.white,
-                                //       border: Border.all(color: Colors.blue),
-                                //       borderRadius: BorderRadius.circular(4),
-                                //     ),
-                                //     child: Row(
-                                //       children: [
-                                //         Expanded(
-                                //           child: Text(
-                                //             _controller.selectedLokasi.value
-                                //                     .isNotEmpty
-                                //                 ? _controller
-                                //                     .selectedLokasi.value
-                                //                 : "Pilih lokasi",
-                                //             style: TextStyle(
-                                //               color: _controller.selectedLokasi
-                                //                       .value.isNotEmpty
-                                //                   ? Colors.black
-                                //                   : Colors.grey,
-                                //             ),
-                                //           ),
-                                //         ),
-                                //         const Icon(Icons.location_on,
-                                //             color: Colors.blue),
-                                //       ],
-                                //     ),
-                                //   ),
-                                // ),
-
                                 if (_controller.latitude.value.isNotEmpty)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 6),
@@ -442,6 +714,93 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String hint) => InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.grey),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide:
+              const BorderSide(color: Color.fromARGB(255, 79, 176, 255)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.blue),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(
+              color: Color.fromARGB(255, 0, 80, 145), width: 1.5),
+        ),
+      );
+
+  Widget _buildDropdownField({
+    required String label,
+    required String? value,
+    required String hint,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<String>(
+          value: value,
+          isExpanded: true,
+          hint: Text(hint, style: const TextStyle(color: Colors.grey)),
+          items: items
+              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+              .toList(),
+          onChanged: onChanged,
+          decoration: _inputDecoration(hint),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimePicker({
+    required String label,
+    required TimeOfDay? time,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w600,
+                color: styles.getTextColor(context))),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.blue),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  time != null ? time.format(context) : 'Pilih waktu',
+                  style: TextStyle(fontSize: 16),
+                ),
+                const Icon(Icons.access_time, size: 18),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

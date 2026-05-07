@@ -24,7 +24,7 @@ class PresenceDetailLecturerService extends GetxService {
       final token = await _box.read("auth_token");
 
       final url =
-          Uri.parse("$_baseUrl/presence/header?presensis_id=$presensisId");
+          Uri.parse("$_baseUrl/presence/header?presensi_id=$presensisId");
       final response = await http.get(url, headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token'
@@ -59,7 +59,7 @@ class PresenceDetailLecturerService extends GetxService {
       final token = await _box.read("auth_token");
 
       final url =
-          Uri.parse("$_baseUrl/presence/detail?presensis_id=$presensisId");
+          Uri.parse("$_baseUrl/presence/detail?presensi_id=$presensisId");
       final response = await http.get(url, headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token'
@@ -128,7 +128,7 @@ class PresenceDetailLecturerService extends GetxService {
       final token = await _box.read("auth_token");
 
       final url = Uri.parse(
-          "$_baseUrl/student/detail?nim=$nim&presensis_id=$presensisId");
+          "$_baseUrl/student/detail?nim=$nim&presensi_id=$presensisId");
       final response = await http.get(url, headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token'

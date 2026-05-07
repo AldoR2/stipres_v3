@@ -9,7 +9,7 @@ import 'package:stipres/models/lecturers/disabled_pertemuan_model.dart';
 import 'package:stipres/models/lecturers/matkul_model.dart';
 import 'package:stipres/models/lecturers/presence_request_model.dart';
 import 'package:stipres/models/location_model.dart';
-import 'package:stipres/screens/features_lecturer/home/presence/location_picker.dart';
+import 'package:stipres/models/ruangan_model.dart';
 import 'package:stipres/screens/reusable/failed_dialog.dart';
 import 'package:stipres/screens/reusable/loading_screen.dart';
 import 'package:stipres/screens/reusable/location_dialog.dart';
@@ -40,10 +40,13 @@ class AddPresenceController extends GetxController {
   final selectedMatkul = ''.obs;
   final selectedPertemuan = ''.obs;
   final selectedJenis = ''.obs;
+  final selectedRuanganID = ''.obs;
+  final selectedKategori = ''.obs;
   final pertemuanTerpakai = <int>[].obs;
   final listMatkul = <MatkulModel>[].obs;
   final listPertemuan = <DisabledPertemuansModel>[].obs;
   final listLokasi = <LocationModel>[].obs;
+  final listRuangan = <RuanganModel>[].obs;
   final selectedStatus = ''.obs;
   final selectedLokasiId = ''.obs;
   final selectedLokasiNama = ''.obs;
@@ -77,6 +80,7 @@ class AddPresenceController extends GetxController {
     fetchProdi();
     fetchTahunAjaran();
     fetchLocation();
+    fetchRuangan();
     // final args
     if (Get.arguments == null) {}
   }
@@ -174,18 +178,18 @@ class AddPresenceController extends GetxController {
     }
   }
 
-  // Future<void> openLocationPicker(BuildContext context) async {
-  //   final result = await Navigator.push(
-  //     context,
-  //     MaterialPageRoute(builder: (_) => const LocationPickerScreen()),
-  //   );
+  void fetchRuangan() async {
+    try {
+      final result = await addPresenceLecturerService.fetchRuangan();
 
-  //   if (result != null) {
-  //     selectedLokasiNama.value = result.name;
-  //     latitude.value = result.latitude.toString();
-  //     longitude.value = result.longitude.toString();
-  //   }
-  // }
+      if (result.status == "success" && result.data != null) {
+        final ruanganList = result.data!.whereType<RuanganModel>().toList();
+        listRuangan.assignAll(ruanganList);
+      }
+    } catch (e) {
+      log.f("Error: $e");
+    }
+  }
 
   Future<void> openLocationPicker(BuildContext context) async {
     bool ready = await ensureLocationReady();
@@ -390,27 +394,28 @@ class AddPresenceController extends GetxController {
 
   Future<void> uploadPresence(String presensiId) async {
     try {
-      final result =
-          await addPresenceLecturerService.uploadPresensi(PresenceRequest(
-        presensiId: presensiId,
-        tglPresensi: selectedDate.value!.toString(),
-        jamAwal: jamAwalStr.value,
-        jamAkhir: jamAkhirStr.value,
-        dosenId: dosenId.value,
-        prodiId: int.parse(selectedProdiMap['id']!),
-        semester: int.parse(selectedSemester.value),
-        matkulId: int.parse(selectedMatkulMap['id']!),
-        tahunAjaranId: tahunAjaranId.value,
-        linkZoom: linkZoomController.text.trim(),
-        pertemuanKe: int.parse(selectedPertemuan.value),
-        jenisPertemuan: selectedJenis.value,
-        status: selectedStatus.value,
-        lokasiId: int.parse(selectedLokasiId.value)
-      ));
+      final result = await addPresenceLecturerService.uploadPresensi(
+          PresenceRequest(
+              presensiId: presensiId,
+              tglPresensi: selectedDate.value!.toString(),
+              jamAwal: jamAwalStr.value,
+              jamAkhir: jamAkhirStr.value,
+              dosenId: dosenId.value,
+              prodiId: int.parse(selectedProdiMap['id']!),
+              semester: int.parse(selectedSemester.value),
+              matkulId: int.parse(selectedMatkulMap['id']!),
+              ruanganId: int.tryParse(selectedRuanganID.value),
+              tahunAjaranId: tahunAjaranId.value,
+              linkZoom: linkZoomController.text.trim(),
+              pertemuanKe: int.parse(selectedPertemuan.value),
+              jenisPertemuan: selectedJenis.value,
+              status: selectedStatus.value,
+              lokasiId: int.tryParse(selectedLokasiId.value),
+              kategori: selectedKategori.value.toLowerCase()
+              ));
 
       if (result.status == "success") {
         Get.back();
-        Get.offAllNamed("/");
         isEnabled.value = false;
         Get.dialog(
           SuccessDialog(
@@ -421,10 +426,10 @@ class AddPresenceController extends GetxController {
           ),
           barrierDismissible: false,
         );
-        Future.delayed(
-          Duration(seconds: 3),
-          () => isEnabled.value = true,
-        );
+        Future.delayed(Duration(seconds: 3), () {
+          Get.offAllNamed("/");
+          isEnabled.value = true;
+        });
       } else {
         Get.back();
         isEnabled.value = false;
@@ -466,106 +471,6 @@ class AddPresenceController extends GetxController {
     }
   }
 
-  // bool validatePresence() {
-  //   if (jamAwal.value == null || jamAkhir.value == null) {
-  //     Get.dialog(UploadDialog(
-  //         title: "Validasi!",
-  //         subtitle: "Silahkan isi data terlebih dahulu",
-  //         gifAssetPath: "assets/gif/upload_data_animation.gif"));
-  //     return false;
-  //   }
-
-  //   final now = DateTime.now();
-  //   final selected = selectedDate.value;
-
-  //   if (selected != null &&
-  //       DateTime(selected.year, selected.month, selected.day)
-  //           .isBefore(DateTime(now.year, now.month, now.day))) {
-  //     isEnabled.value = false;
-  //     Get.dialog(UploadDialog(
-  //       title: "Validasi!",
-  //       subtitle: "Tanggal tidak boleh kurang dari hari ini.",
-  //       gifAssetPath: "assets/gif/upload_data_animation.gif",
-  //     ));
-  //     Future.delayed(
-  //       const Duration(seconds: 3),
-  //       () => isEnabled.value = true,
-  //     );
-  //     return false;
-  //   }
-
-  //   jamAwalStr.value = timeOfDayToString(jamAwal.value!);
-  //   jamAkhirStr.value = timeOfDayToString(jamAkhir.value!);
-  //   final awal = timeOfDayToString(jamAwal.value!);
-  //   final akhir = timeOfDayToString(jamAkhir.value!);
-
-  //   log.d("Dosen ID:  ${dosenId.value}");
-  //   log.d("SelectedProdi id: ${selectedProdiMap['id']}");
-  //   log.d("SelectedMatkul id: ${selectedMatkulMap['id']}");
-  //   log.d("SelectedPertemuan ke ${selectedPertemuan.value}");
-  //   log.d("SelectedStatus: ${selectedStatus.value}");
-  //   log.d("semester: ${selectedSemester.value}");
-  //   log.d("TahunAjar Id: ${tahunAjaranId.value}");
-  //   log.d("selectedDate : ${selectedDate.value}");
-  //   log.d("Jam Awal : ${jamAwal.value}");
-  //   log.d("Jam Akhir : ${jamAkhir.value}");
-  //   log.d("Jam Awal Str : ${jamAwalStr.value}");
-  //   log.d("Jam Akhir Str: ${jamAkhirStr.value}");
-  //   log.d("LinkZoom : ${linkZoomController.text}");
-  //   if (!selectedProdiMap.containsKey('id') ||
-  //       selectedProdiMap['id'] == null ||
-  //       selectedProdiMap['id']!.isEmpty ||
-  //       selectedSemester.isEmpty ||
-  //       selectedPertemuan.isEmpty ||
-  //       selectedStatus.isEmpty ||
-  //       !selectedMatkulMap.containsKey('id') ||
-  //       selectedMatkulMap['id'] == null ||
-  //       selectedMatkulMap['id']!.isEmpty ||
-  //       tahunAjaranId.value == 0 ||
-  //       selectedDate.value == null ||
-  //       jamAwal.value == null ||
-  //       jamAkhir.value == null ||
-  //       jamAwalStr.value.isEmpty ||
-  //       jamAkhirStr.value.isEmpty ||
-  //       linkZoomController.text.isEmpty && selectedStatus.value == "Aktif") {
-  //     isEnabled.value = false;
-  //     Get.dialog(UploadDialog(
-  //         title: "Validasi!",
-  //         subtitle: "Silahkan isi data terlebih dahulu",
-  //         gifAssetPath: "assets/gif/upload_data_animation.gif"));
-  //     Future.delayed(
-  //       Duration(seconds: 3),
-  //       () => isEnabled.value = true,
-  //     );
-  //     return false;
-  //   } else if (!selectedProdiMap.containsKey('id') ||
-  //       selectedProdiMap['id'] == null ||
-  //       selectedProdiMap['id']!.isEmpty ||
-  //       selectedSemester.isEmpty ||
-  //       selectedPertemuan.isEmpty ||
-  //       selectedStatus.isEmpty ||
-  //       !selectedMatkulMap.containsKey('id') ||
-  //       selectedMatkulMap['id'] == null ||
-  //       selectedMatkulMap['id']!.isEmpty ||
-  //       tahunAjaranId.value == 0 ||
-  //       selectedDate.value == null && selectedStatus.value != "Aktif") {
-  //     "";
-  //   } else if (!isAfter(jamAkhir.value!, jamAwal.value!) || awal == akhir) {
-  //     isEnabled.value = false;
-  //     Get.dialog(UploadDialog(
-  //         title: "Validasi!",
-  //         subtitle: "Jam akhir harus setelah jam awal",
-  //         gifAssetPath: "assets/gif/upload_data_animation.gif"));
-  //     Future.delayed(
-  //       Duration(seconds: 3),
-  //       () => isEnabled.value = true,
-  //     );
-  //     return false;
-  //   } else {
-  //     return true;
-  //   }
-  // }
-
   bool validatePresence() {
     log.d("Dosen ID:  ${dosenId.value}");
     log.d("SelectedProdi id: ${selectedProdiMap['id']}");
@@ -581,7 +486,9 @@ class AddPresenceController extends GetxController {
     log.d("Jam Awal Str : ${jamAwalStr.value}");
     log.d("Jam Akhir Str: ${jamAkhirStr.value}");
     log.d("LinkZoom : ${linkZoomController.text}");
+    log.d("Ruangan ID : ${selectedRuanganID.value}");
     log.d("SelectedLokasi ID : ${selectedLokasiId.value}");
+    log.d("SelectedKategori: ${selectedKategori.value}");
 
     void showValidationDialog(String message) {
       isEnabled.value = false;
@@ -600,7 +507,6 @@ class AddPresenceController extends GetxController {
       selectedMatkulMap['id'],
       tahunAjaranId.value.toString(),
       selectedDate.value,
-      selectedLokasiId.value
     ];
 
     if (requiredFields.any((e) => e == null || e.toString().isEmpty)) {
@@ -643,12 +549,24 @@ class AddPresenceController extends GetxController {
       return false;
     }
 
-    if (selectedStatus.value == "Aktif" && linkZoomController.text.isEmpty) {
+    if (selectedStatus.value == "Aktif" &&
+        selectedKategori.value == "Daring" &&
+        linkZoomController.text.isEmpty) {
       showValidationDialog("Silahkan isi link zoom terlebih dahulu");
+      return false;
+    }
+    if (selectedStatus.value == "Aktif" &&
+        selectedKategori.value == "Luring" &&
+        selectedRuanganID.value.isEmpty) {
+      showValidationDialog("Silahkan isi ruangan terlebih dahulu");
       return false;
     }
     if (selectedStatus.value == "Aktif" && selectedJenis.isEmpty) {
       showValidationDialog("Silahkan isi jenis pertemuan terlebih dahulu");
+      return false;
+    }
+    if (selectedStatus.value == "Aktif" && selectedLokasiId.value.isEmpty) {
+      showValidationDialog("Silahkan isi lokasi terlebih dahulu");
       return false;
     }
 

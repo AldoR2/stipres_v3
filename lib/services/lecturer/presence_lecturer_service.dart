@@ -53,15 +53,15 @@ class PresenceLecturerService extends GetxService {
     }
   }
 
-  Future<BasicResponse> updatePresence(
-      String dosenId, String presensisId, String jamAwal, String jamAkhir) async {
+  Future<BasicResponse> updatePresence(String dosenId, String presensisId,
+      String jamAwal, String jamAkhir) async {
     try {
       final token = await _box.read("auth_token");
 
       final url = Uri.parse("$_baseUrl/updatePresence");
       final response = await http.post(url, body: {
         'dosen_id': dosenId,
-        'presensis_id': presensisId,
+        'presensi_id': presensisId,
         'jam_awal': jamAwal,
         'jam_akhir': jamAkhir
       }, headers: {
@@ -99,7 +99,7 @@ class PresenceLecturerService extends GetxService {
         "jam_awal": jamAwal,
         "dosen_id": dosenId,
         "jam_akhir": jamAkhir,
-        "presensis_id": presensisId
+        "presensi_id": presensisId
       }, headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token'
@@ -133,7 +133,7 @@ class PresenceLecturerService extends GetxService {
 
       final url = Uri.parse("$_baseUrl/deletePresence");
       final response = await http.post(url, body: {
-        'presensis_id': presensisId,
+        'presensi_id': presensisId,
       }, headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token'

@@ -20,7 +20,7 @@ class LectureModelApi {
   factory LectureModelApi.fromJson(Map<String, dynamic> json) {
     return LectureModelApi(
       namaMatkul: json["nama_matkul"],
-      presensisId: json["presensis_id"],
+      presensisId: json["presensi_id"],
       semester: json["semester"],
       durasiPresensi: json["durasi_presensi"],
       namaDosen: json["nama_dosen"],
