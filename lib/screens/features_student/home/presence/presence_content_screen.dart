@@ -157,8 +157,7 @@ class _PresenceContentScreenState extends State<PresenceContentScreen> {
                                               width: double.infinity,
                                               child: ElevatedButton.icon(
                                                 onPressed: () {
-                                                  Get.to(() =>
-                                                      FaceRecognitionScreen());
+                                                  _controller.submitDetection();
                                                 },
                                                 icon: const Icon(Icons.face,
                                                     color: Colors.white),

@@ -80,6 +80,7 @@ import 'package:stipres/screens/features_lecturer/home/notifications/notificatio
     as lecturer;
 import 'package:stipres/screens/features_student/home/offline_screen.dart';
 import 'package:stipres/screens/features_student/home/presence/face_recognition_screen.dart';
+import 'package:stipres/screens/features_student/home/presence/location_detection_screen.dart';
 import 'package:stipres/screens/features_student/home/presence/presence_content_screen.dart';
 import 'package:stipres/screens/features_student/home/presence/presence_result_screen.dart';
 import 'package:stipres/screens/features_student/home/presence/presence_screen.dart';
@@ -229,10 +230,10 @@ class AppScreens {
         name: "/student/face-recognition-screen",
         page: () => FaceRecognitionScreen(),
         binding: PresenceContentBinding()),
-    // GetPage(
-    //     name: "/student/geolocation-screen",
-    //     page: () => PresensiResultScreen(),
-    //     binding: GeolocationBinding()),
+    GetPage(
+        name: "/student/geolocation-screen",
+        page: () => LocationDetectionScreen(),
+        binding: GeolocationBinding()),
     GetPage(
         name: "/student/lecture-content-screen",
         page: () => LectureContentScreen())

@@ -29,6 +29,13 @@ class MatkulDetailCard extends StatelessWidget {
           const SizedBox(height: 8),
           _buildDetailRow(context, "Jam Matkul", data.durasiPresensi!,
               bold: true),
+          if (data.namaLokasi != null) ...[
+            const SizedBox(
+              height: 8,
+            ),
+            _buildDetailRow(context, "Nama Lokasi", data.namaLokasi!,
+                bold: true),
+          ]
         ],
       ),
     );
