@@ -55,7 +55,7 @@ dependencies:
     git:
       url: https://github.com/pdurasie-ecovery/flutter_jailbreak_detection.git
       ref: add-namespace
-  
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:

@@ -46,7 +46,6 @@ class LectureController extends GetxController {
       log.d(namaDosen);
       log.d("Check Dosen Id: $dosenId");
       final result = await lectureLecturerService.tampilZoom(dosenId);
-      log.f("fmalmfa;lmf");
 
       if (result.status == "success") {
         final List<LectureModelApi> updatedList = result.data!.map((lecture) {

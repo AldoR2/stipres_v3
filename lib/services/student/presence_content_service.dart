@@ -32,7 +32,7 @@ class PresenceContentService extends GetxService {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token'
       });
-      log.e(url);
+      log.d(url);
 
       final body = jsonDecode(response.body);
 

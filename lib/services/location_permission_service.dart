@@ -32,9 +32,15 @@ class LocationPermissionService {
       log.d("Location Service tidak tersedia");
     }
     return await Geolocator.getCurrentPosition(
-      locationSettings: AndroidSettings(
-        accuracy: LocationAccuracy.high
-      ),
+      locationSettings: AndroidSettings(accuracy: LocationAccuracy.high),
     );
+  }
+
+  Future<double> distanceBetween(double latitude, double longitude,
+      double targetLat, double targetLng) async {
+    final position =
+        Geolocator.distanceBetween(latitude, longitude, targetLat, targetLng);
+
+    return position;
   }
 }

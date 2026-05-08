@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
+import 'package:geolocator/geolocator.dart';
 
 class SecurityLocationService {
   final DeviceInfoPlugin _deviceInfo = DeviceInfoPlugin();
@@ -19,5 +20,9 @@ class SecurityLocationService {
       return !info.isPhysicalDevice;
     }
     return false;
+  }
+
+    Future<bool> isMockLocation(Position pos) async {
+    return pos.isMocked;
   }
 }

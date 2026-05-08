@@ -130,6 +130,17 @@ class PresenceContentController extends GetxController {
     await uploadPresence();
   }
 
+  void submitDetection() async {
+    log.d("Presensi id: ${presensisId.value}");
+    log.d("Location ID: ${presence.value.lokasiId}");
+    log.d("Location Nama: ${presence.value.namaLokasi}");
+    Get.toNamed("/student/geolocation-screen", arguments: [
+      presensisId.value,
+      presence.value.lokasiId,
+      presence.value.namaLokasi
+    ]);
+  }
+
   Future<void> uploadPresence() async {
     try {
       var mahasiswaId = _box.read("mahasiswa_id");
@@ -232,7 +243,11 @@ class PresenceContentController extends GetxController {
             durasiPresensi: data.durasiPresensi,
             tglPresensi: data.tglPresensi,
             namaMatkul: data.namaMatkul,
-            kodeMatkul: data.kodeMatkul);
+            kodeMatkul: data.kodeMatkul,
+            lokasiId: data.lokasiId,
+            namaLokasi: data.namaLokasi,
+            
+            );
 
         final isOnSchedule =
             await checkPresenceTime(data.tglPresensi!, data.durasiPresensi!);
