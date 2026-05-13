@@ -34,6 +34,7 @@ class GeolocationController extends GetxController {
   final RxDouble progress = 0.0.obs;
   final Rxn<LatLng> userLocation = Rxn<LatLng>();
   final RxBool isInsideRadius = false.obs;
+  final mahasiswaId = 0.obs;
 
   final errorMessage = ''.obs;
 
@@ -49,6 +50,7 @@ class GeolocationController extends GetxController {
 
   Future<void> initPage() async {
     final lokasiId = Get.arguments[1] as int;
+    mahasiswaId.value = Get.arguments[3] as int;
     await fetchLocation(lokasiId);
     await _getCurrentLocation();
     await loadValidation();
@@ -109,10 +111,10 @@ class GeolocationController extends GetxController {
 
     userLocation.value = LatLng(position.latitude, position.longitude);
 
-    if (position.accuracy > 20) {
-      Get.snackbar("Absensi Gagal", "Akurasi rendah");
-      return;
-    }
+    // if (position.accuracy < 20) {
+    //   Get.snackbar("Absensi Gagal", "Akurasi rendah");
+    //   return;
+    // }
 
     _validateRadius(position);
   }
@@ -125,6 +127,8 @@ class GeolocationController extends GetxController {
           title: "Presensi berhasil",
           subtitle: "Data presensi berhasil ditambahkan",
           gifAssetPath: "assets/gif/success_animation.gif"));
+      Get.toNamed('/student/face-attendance-screen',
+          arguments: mahasiswaId.value);
     } else {
       Get.dialog(FailedDialog(
           title: "Presensi gagal",
@@ -167,10 +171,10 @@ class GeolocationController extends GetxController {
         });
     if (!mockValid) return false;
 
-    if (possition.accuracy > 20) {
-      errorMessage.value = 'Akurasi gps rendah';
-      return false;
-    }
+    // if (possition.accuracy > 20) {
+    //   errorMessage.value = 'Akurasi gps rendah';
+    //   return false;
+    // }
 
     bool isInside = await validateStep(
         index: 3,
