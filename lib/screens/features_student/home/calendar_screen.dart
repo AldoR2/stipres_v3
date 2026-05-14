@@ -64,7 +64,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
             children: [
               Column(
                 children: [
-                  CustomHeader(title: "Kalender Akademik"),
+                  CustomHeader(
+                    title: "Kalender Akademik",
+                    backgroundColor: styles.getMainColor(context),
+                  ),
                   SizedBox(height: 10),
                   TableCalendar(
                     focusedDay: _focusedDay,

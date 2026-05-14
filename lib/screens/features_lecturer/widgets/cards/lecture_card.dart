@@ -14,202 +14,215 @@ class PerkuliahanCard extends StatelessWidget {
     this.onEdit,
   });
 
+  static const _green900 = Color(0xFF1B5E20);
+  static const _green700 = Color(0xFF2E7D32);
+  static const _green500 = Color(0xFF43A047);
+  static const _green100 = Color(0xFFC8E6C9);
+  static const _green50 = Color(0xFFE8F5E9);
+  static const _white = Colors.white;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Color(0xFFC0EFC9),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Color(0xFFC8C8C8),
-          width: 0.5,
-        ),
+        color: _green50,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _green100, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(2, 2),
+            color: _green700.withOpacity(0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Container(
-        color: Colors.transparent,
-        child: Row(
-          children: [
-            // SEMESTER COLUMN
-            Container(
-              width: 90,
-              height: 170, // fix height supaya sejajar
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 59, 136, 62),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Semester',
-                    style: GoogleFonts.plusJakartaSans(
-                        color: Colors.white, fontSize: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Header: Nama Matkul ─────────────────────────────
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: const BoxDecoration(
+              color: _green700,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(19)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: _green500,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  SizedBox(height: 5),
-                  Text(
-                    data.semester.toString(),
+                  child: Image.asset(
+                    "assets/icons/ic_book2.png",
+                    width: 22,
+                    height: 22,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: AutoSizeText(
+                    data.namaMatkul,
                     style: GoogleFonts.plusJakartaSans(
-                      color: Colors.white,
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
+                      color: _white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                    maxLines: 1,
+                    minFontSize: 12,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _green900.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Smt ${data.semester}',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: _white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
-            const SizedBox(width: 12),
+          // ── Body ────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // Tanggal
+                _InfoRow(
+                  iconPath: "assets/icons/ic_calendar2.png",
+                  label: "Tanggal",
+                  value: data.tglPresensi,
+                ),
+                const SizedBox(height: 10),
+                // Waktu
+                _InfoRow(
+                  iconPath: "assets/icons/ic_clock.png",
+                  label: "Waktu",
+                  value: "${data.durasiPresensi} WIB",
+                ),
 
-            // MAIN CONTENT
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Mata Kuliah
-                  Stack(
-                    clipBehavior: Clip.none,
-                    alignment: Alignment.centerLeft,
+                // ── Link Zoom (hanya tampil jika ada) ─────────
+                if (data.linkZoom != null && data.linkZoom!.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+
+                  // Divider
+                  Container(height: 1, color: _green100),
+
+                  const SizedBox(height: 14),
+
+                  // Label
+                  Row(
                     children: [
-                      // Background merah (menyesuaikan tinggi ikon)
                       Container(
-                        margin: const EdgeInsets.only(
-                            left: 28), // supaya gak nabrak ikon
-                        height: 36, // sama dengan tinggi ikon
-                        padding: const EdgeInsets.only(left: 16, right: 12),
+                        padding: const EdgeInsets.all(7),
                         decoration: BoxDecoration(
-                          color: Colors.red,
+                          color: _green100,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        alignment: Alignment.centerLeft,
-                        child: AutoSizeText(
-                          data.namaMatkul,
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                          maxLines: 1,
-                          minFontSize: 10,
-                          overflow: TextOverflow.ellipsis,
+                        child: Image.asset(
+                          "assets/icons/ic_link.png",
+                          width: 18,
+                          height: 18,
                         ),
                       ),
-
-                      // Ikon di atas background
-                      Positioned(
-                        // sedikit ke atas biar seimbang
-                        child: Image.asset(
-                          "assets/icons/ic_book2.png",
-                          width: 40,
-                          height: 40,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Link Zoom',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: _green700.withOpacity(0.6),
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            // Link field
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 9),
+                              decoration: BoxDecoration(
+                                color: _white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: _green100),
+                              ),
+                              child: AutoSizeText(
+                                data.linkZoom!,
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.blue.shade700,
+                                  fontSize: 13,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.blue.shade700,
+                                ),
+                                maxLines: 1,
+                                minFontSize: 10,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 10),
 
-                  PerkuliahanChip(
-                    iconPath: "assets/icons/ic_calendar2.png",
-                    text: data.tglPresensi,
-                  ),
-                  const SizedBox(height: 8),
-                  PerkuliahanChip(
-                    iconPath: "assets/icons/ic_clock.png",
-                    text: "${data.durasiPresensi} WIB ",
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Zoom Link
-                  if (data.linkZoom != null && data.linkZoom!.isNotEmpty)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Image.asset("assets/icons/ic_link.png", width: 20),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: TextField(
-                            controller:
-                                TextEditingController(text: data.linkZoom),
-                            readOnly: true,
-                            style: GoogleFonts.plusJakartaSans(
-                                color: Colors.blue,
-                                fontSize: 14,
-                                decoration: TextDecoration.underline),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 8,
-                                horizontal: 8,
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Material(
-                          color: Colors.transparent,
+                  // ── Action buttons: Edit + Salin ───────────
+                  Row(
+                    children: [
+                      // Edit button
+                      Expanded(
+                        child: Material(
+                          color: _green50,
+                          borderRadius: BorderRadius.circular(10),
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(10),
                             onTap: () {
                               if (onEdit != null) {
-                                onEdit!(data.linkZoom ?? "Kosong", data.presensisId);
+                                onEdit!(
+                                  data.linkZoom ?? "Kosong",
+                                  data.presensisId,
+                                );
                               }
                             },
-                            child: Padding(
+                            child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 4),
-                              child: Row(
-                                children: [
-                                  Image.asset("assets/icons/ic_edit2.png",
-                                      width: 24),
-                                ],
+                                  vertical: 9, horizontal: 12),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: _green100),
                               ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 6),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(6),
-                            onTap: () {
-                              Clipboard.setData(
-                                ClipboardData(text: data.linkZoom ?? "Kosong"),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Link berhasil disalin!"),
-                                ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 4),
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Image.asset("assets/icons/ic_copy.png",
-                                      width: 24),
-                                  const SizedBox(width: 4),
-                                  const Text(
-                                    "Salin",
-                                    style: TextStyle(
+                                  Image.asset(
+                                    "assets/icons/ic_edit2.png",
+                                    width: 16,
+                                    height: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Edit Link',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: _green700,
                                       fontSize: 12,
-                                      fontFamily: 'Poppins',
-                                      fontWeight:
-                                          FontWeight.normal, // Add a comma here
-                                      color: Color(0xFF168200),
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
@@ -217,51 +230,131 @@ class PerkuliahanCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ],
-                    )
+                      ),
+
+                      const SizedBox(width: 8),
+
+                      // Salin button
+                      Expanded(
+                        child: Material(
+                          color: _green700,
+                          borderRadius: BorderRadius.circular(10),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(10),
+                            onTap: () {
+                              Clipboard.setData(
+                                ClipboardData(text: data.linkZoom ?? "Kosong"),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Link berhasil disalin!",
+                                    style: GoogleFonts.plusJakartaSans(
+                                        color: _white),
+                                  ),
+                                  backgroundColor: _green700,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 9, horizontal: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "assets/icons/ic_copy.png",
+                                    width: 16,
+                                    height: 16,
+                                    color: _white,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Salin',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: _white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class PerkuliahanChip extends StatelessWidget {
+// ── Info Row ──────────────────────────────────────────────────
+class _InfoRow extends StatelessWidget {
   final String iconPath;
-  final String text;
-  final VoidCallback? onTap;
+  final String label;
+  final String value;
 
-  const PerkuliahanChip({
-    super.key,
+  const _InfoRow({
     required this.iconPath,
-    required this.text,
-    this.onTap,
+    required this.label,
+    required this.value,
   });
+
+  static const _green700 = Color(0xFF2E7D32);
+  static const _green100 = Color(0xFFC8E6C9);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Image.asset(
-          iconPath,
-          width: 20,
-          height: 20,
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: GestureDetector(
-            onTap: onTap,
-            child: AutoSizeText(
-              text,
-              style: GoogleFonts.plusJakartaSans(fontSize: 14),
-              maxLines: 1,
-              minFontSize: 10,
-              overflow: TextOverflow.ellipsis,
-            ),
+        Container(
+          padding: const EdgeInsets.all(7),
+          decoration: BoxDecoration(
+            color: _green100,
+            borderRadius: BorderRadius.circular(8),
           ),
+          child: Image.asset(iconPath, width: 18, height: 18),
+        ),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: _green700.withOpacity(0.6),
+                letterSpacing: 0.3,
+              ),
+            ),
+            const SizedBox(height: 1),
+            SizedBox(
+              width: 200,
+              child: AutoSizeText(
+                value,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF1B5E20),
+                ),
+                maxLines: 1,
+                minFontSize: 10,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
       ],
     );

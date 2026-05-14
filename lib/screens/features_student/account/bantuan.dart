@@ -22,7 +22,9 @@ class Bantuan extends StatelessWidget {
         children: [
           Column(
             children: [
-              CustomHeader(title: "Bantuan"),
+              CustomHeader(
+                  title: "Bantuan",
+                  backgroundColor: styles.getMainColor(context)),
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(

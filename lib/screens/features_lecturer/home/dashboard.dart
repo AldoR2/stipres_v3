@@ -171,6 +171,21 @@ class _DashboardScreenLecturerState extends State<DashboardScreenLecturer> {
                                   decoration: BoxDecoration(
                                     color: styles.getCircleColor(context),
                                     shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.blue.shade300,
+                                        Colors.blue.shade700,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.blue.withOpacity(0.3),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
                                   child: ClipOval(child: Obx(() {
                                     final imageUrl =

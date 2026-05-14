@@ -18,7 +18,9 @@ class LocationDetectionScreen extends StatelessWidget {
       backgroundColor: styles.getMainColor(context),
       body: Column(
         children: [
-          CustomHeader(title: "Presensi Mata Kuliah"),
+          CustomHeader(
+              title: "Presensi Mata Kuliah",
+              backgroundColor: styles.getMainColor(context)),
           const SizedBox(height: 20),
           Expanded(
             child: Padding(

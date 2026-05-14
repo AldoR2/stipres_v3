@@ -16,24 +16,23 @@ class PresenceRequest {
   final int? lokasiId;
   final String? kategori;
 
-  PresenceRequest({
-    required this.presensiId,
-    required this.tglPresensi,
-    required this.jamAwal,
-    required this.jamAkhir,
-    required this.dosenId,
-    required this.prodiId,
-    required this.semester,
-    required this.matkulId,
-    required this.tahunAjaranId,
-    required this.ruanganId,
-    required this.linkZoom,
-    required this.status,
-    required this.pertemuanKe,
-    required this.jenisPertemuan,
-    required this.lokasiId,
-    required this.kategori
-  });
+  PresenceRequest(
+      {required this.presensiId,
+      required this.tglPresensi,
+      required this.jamAwal,
+      required this.jamAkhir,
+      required this.dosenId,
+      required this.prodiId,
+      required this.semester,
+      required this.matkulId,
+      required this.tahunAjaranId,
+      required this.ruanganId,
+      required this.linkZoom,
+      required this.status,
+      required this.pertemuanKe,
+      required this.jenisPertemuan,
+      required this.lokasiId,
+      required this.kategori});
 
   Map<String, dynamic> toJson() {
     return {

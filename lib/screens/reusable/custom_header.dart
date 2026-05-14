@@ -5,16 +5,25 @@ import 'package:stipres/theme/theme_helper.dart' as styles;
 class CustomHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onBack;
+  final Color? backgroundColor;
 
-  const CustomHeader({super.key, required this.title, this.onBack});
+  const CustomHeader({
+    super.key,
+    required this.title,
+    this.onBack,
+    this.backgroundColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
+    final notchColor =
+        backgroundColor ?? Theme.of(context).scaffoldBackgroundColor;
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
+        // ── Main header container ──────────────────────────────────
         Container(
           width: width,
           height: 110,
@@ -63,6 +72,8 @@ class CustomHeader extends StatelessWidget {
             ],
           ),
         ),
+
+        // ── Notch: kotak biru pengisi ──────────────────────────────
         Positioned(
           bottom: -44,
           right: 0,
@@ -72,6 +83,8 @@ class CustomHeader extends StatelessWidget {
             color: styles.getBlueColor(context),
           ),
         ),
+
+        // ── Notch: lengkungan yang "memotong" sudut biru ───────────
         Positioned(
           bottom: -45,
           right: 0,
@@ -79,8 +92,8 @@ class CustomHeader extends StatelessWidget {
             width: 45,
             height: 45,
             decoration: BoxDecoration(
-              color: styles.getMainColor(context),
-              borderRadius: BorderRadius.only(
+              color: notchColor,
+              borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(40),
               ),
             ),

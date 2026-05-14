@@ -15,7 +15,9 @@ class KebijakanPrivasi extends StatelessWidget {
         children: [
           Column(
             children: [
-              CustomHeader(title: "Kebijakan Privasi"),
+              CustomHeader(
+                  title: "Kebijakan Privasi",
+                  backgroundColor: styles.getMainColor(context)),
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Column(
