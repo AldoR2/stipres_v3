@@ -23,7 +23,6 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
     _initCamera();
   }
 
-
   void _initCamera() {
     if (cameras.isEmpty) return;
 
@@ -32,13 +31,10 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       orElse: () => cameras.first,
     );
 
-  Get.find<FaceRecognitionController>();
-  
-    _controller = CameraController(
-      frontCamera,
-      ResolutionPreset.medium,
-      enableAudio: false,
-    );
+    Get.find<FaceRecognitionController>();
+
+    _controller = CameraController(frontCamera, ResolutionPreset.medium,
+        enableAudio: false, imageFormatGroup: ImageFormatGroup.nv21);
 
     _initializeControllerFuture = _controller!.initialize();
   }

@@ -23,6 +23,7 @@ import 'package:stipres/bindings/features_student/biometric_binding.dart';
 import 'package:stipres/bindings/features_student/calendar_binding.dart';
 import 'package:stipres/bindings/features_student/dashboard_binding.dart'
     as student;
+import 'package:stipres/bindings/features_student/face_attendance_binding.dart';
 import 'package:stipres/bindings/features_student/geolocation_binding.dart';
 import 'package:stipres/bindings/features_student/lecture_binding.dart';
 import 'package:stipres/bindings/features_student/notification_binding.dart';
@@ -79,6 +80,7 @@ import 'package:stipres/screens/features_student/home/notifications/notification
 import 'package:stipres/screens/features_lecturer/home/notifications/notification_screen.dart'
     as lecturer;
 import 'package:stipres/screens/features_student/home/offline_screen.dart';
+import 'package:stipres/screens/features_student/home/presence/face_attendance_screen.dart';
 import 'package:stipres/screens/features_student/home/presence/face_recognition_screen.dart';
 import 'package:stipres/screens/features_student/home/presence/location_detection_screen.dart';
 import 'package:stipres/screens/features_student/home/presence/presence_content_screen.dart';
@@ -230,6 +232,10 @@ class AppScreens {
         name: "/student/face-recognition-screen",
         page: () => FaceRecognitionScreen(),
         binding: PresenceContentBinding()),
+    GetPage(
+        name: "/student/face-attendance-screen",
+        page: () => FaceAttendanceScreen(),
+        binding: FaceAttendanceBinding()),
     GetPage(
         name: "/student/geolocation-screen",
         page: () => LocationDetectionScreen(),

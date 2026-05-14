@@ -134,10 +134,13 @@ class PresenceContentController extends GetxController {
     log.d("Presensi id: ${presensisId.value}");
     log.d("Location ID: ${presence.value.lokasiId}");
     log.d("Location Nama: ${presence.value.namaLokasi}");
+    var mahasiswaId = _box.read("mahasiswa_id");
+
     Get.toNamed("/student/geolocation-screen", arguments: [
       presensisId.value,
       presence.value.lokasiId,
-      presence.value.namaLokasi
+      presence.value.namaLokasi,
+      mahasiswaId
     ]);
   }
 
@@ -240,14 +243,13 @@ class PresenceContentController extends GetxController {
         log.d(data);
 
         presence.value = GetPresenceApi(
-            durasiPresensi: data.durasiPresensi,
-            tglPresensi: data.tglPresensi,
-            namaMatkul: data.namaMatkul,
-            kodeMatkul: data.kodeMatkul,
-            lokasiId: data.lokasiId,
-            namaLokasi: data.namaLokasi,
-            
-            );
+          durasiPresensi: data.durasiPresensi,
+          tglPresensi: data.tglPresensi,
+          namaMatkul: data.namaMatkul,
+          kodeMatkul: data.kodeMatkul,
+          lokasiId: data.lokasiId,
+          namaLokasi: data.namaLokasi,
+        );
 
         final isOnSchedule =
             await checkPresenceTime(data.tglPresensi!, data.durasiPresensi!);
