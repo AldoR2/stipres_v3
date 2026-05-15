@@ -105,6 +105,8 @@ class LectureLecturerService extends GetxService {
       String presensisId, String linkZoom) async {
     try {
       final token = await _box.read("auth_token");
+      log.d("current : $linkZoom");
+      log.d("presensis id: $presensisId");
 
       final url = Uri.parse("$_baseUrl/updateLecture");
       final response = await http.post(url, body: {

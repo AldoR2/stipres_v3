@@ -85,6 +85,10 @@ class LectureController extends GetxController {
 
   void submitUpdateLecture(int presensisId, String newLink, String currentLink,
       LectureModelApi? currentData) {
+    log.d("link new: $newLink");
+    log.d("link old: $currentLink");
+    log.d("presensis id: $presensisId");
+
     if (newLink == currentLink) {
       null;
     } else if (newLink.isEmpty) {

@@ -52,7 +52,7 @@ class PresenceRequest {
       'pertemuan_ke': pertemuanKe.toString(),
       'jenis_pertemuan': jenisPertemuan.toLowerCase(),
       'lokasi_id': lokasiId.toString(),
-      'kategori': lokasiId.toString(),
+      'kategori': kategori.toString(),
     };
   }
 }

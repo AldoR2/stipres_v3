@@ -878,7 +878,7 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                                             Icons.meeting_room_outlined),
                                     items: _controller.listRuangan
                                         .map((e) => DropdownMenuItem(
-                                            value: e.namaRuangan ?? '',
+                                            value: e.id ?? '',
                                             child: Text(e.namaRuangan ?? '',
                                                 style: GoogleFonts.dmSans(
                                                     fontSize:
