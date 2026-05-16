@@ -25,8 +25,8 @@ class JadwalModelApi {
 
   factory JadwalModelApi.fromJson(Map<String, dynamic> json) {
     return JadwalModelApi(
-        presensiId: json['presensi_id'].toString(),
-        presensisId: json['presensis_id'],
+        presensiId: json['kode_presensi'].toString(),
+        presensisId: json['presensi_id'],
         waktu: json['durasi_presensi'],
         mataKuliah: json['nama_matkul'],
         lokasi: json['nama_ruangan'],
