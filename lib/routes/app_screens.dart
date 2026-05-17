@@ -24,6 +24,7 @@ import 'package:stipres/bindings/features_student/calendar_binding.dart';
 import 'package:stipres/bindings/features_student/dashboard_binding.dart'
     as student;
 import 'package:stipres/bindings/features_student/face_attendance_binding.dart';
+import 'package:stipres/bindings/features_student/face_recognition_binding.dart';
 import 'package:stipres/bindings/features_student/geolocation_binding.dart';
 import 'package:stipres/bindings/features_student/lecture_binding.dart';
 import 'package:stipres/bindings/features_student/notification_binding.dart';
@@ -32,6 +33,7 @@ import 'package:stipres/bindings/features_student/presence_content_binding.dart'
 import 'package:stipres/bindings/features_student/profile_binding.dart'
     as student;
 import 'package:stipres/bindings/features_lecturer/profile_binding.dart';
+import 'package:stipres/bindings/features_student/register_face_binding.dart';
 import 'package:stipres/bindings/features_student/settings_binding.dart';
 import 'package:stipres/bindings/features_student/view_profile_binding.dart';
 import 'package:stipres/screens/auth/activation_account_screen_1.dart';
@@ -55,6 +57,7 @@ import 'package:stipres/screens/features_student/account/kebijakan_privasi.dart'
 import 'package:stipres/screens/features_student/account/ketentuan_layanan.dart';
 import 'package:stipres/screens/features_student/account/pengaturan.dart'
     as student;
+import 'package:stipres/screens/features_student/account/register_face_screen.dart';
 import 'package:stipres/screens/features_student/account/sidik_jari.dart';
 
 import 'package:stipres/screens/features_student/account/view_profile.dart'
@@ -231,7 +234,7 @@ class AppScreens {
     GetPage(
         name: "/student/face-recognition-screen",
         page: () => FaceRecognitionScreen(),
-        binding: PresenceContentBinding()),
+        binding: FaceRecognitionBinding()),
     GetPage(
         name: "/student/face-attendance-screen",
         page: () => FaceAttendanceScreen(),
