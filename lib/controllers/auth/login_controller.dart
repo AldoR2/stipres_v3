@@ -220,8 +220,10 @@ class LoginController extends GetxController {
       } else {
         Get.back();
         isSnackbarOpen.value = true;
-        Get.snackbar("Gagal", result.message ?? "Login Gagal",
-            duration: Duration(seconds: 2));
+        Get.showSnackbar(GetSnackBar(
+            title: "Gagal",
+            message: result.message ?? "Login Gagal",
+            duration: Duration(seconds: 2)));
         Future.delayed(Duration(seconds: 3), () {
           isSnackbarOpen.value = false;
         });

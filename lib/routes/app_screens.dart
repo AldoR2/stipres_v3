@@ -34,6 +34,7 @@ import 'package:stipres/bindings/features_student/profile_binding.dart'
     as student;
 import 'package:stipres/bindings/features_lecturer/profile_binding.dart';
 import 'package:stipres/bindings/features_student/register_face_binding.dart';
+import 'package:stipres/bindings/features_student/resiter_setting_face_binding.dart';
 import 'package:stipres/bindings/features_student/settings_binding.dart';
 import 'package:stipres/bindings/features_student/view_profile_binding.dart';
 import 'package:stipres/screens/auth/activation_account_screen_1.dart';
@@ -256,16 +257,13 @@ class AppScreens {
     GetPage(
         name: "/student/face-register-page-screen",
         page: () => FaceRegisterPage(),
-        binding: RegisterFaceBinding()
-        ),
+        binding: ResiterSettingFaceBinding()),
     GetPage(
         name: "/student/face-register-guide-screen",
-        page: () => FaceRegisterGuidePage(),
-        binding: RegisterFaceBinding()
-        ),
+        page: () => FaceRegisterGuidePage()),
     GetPage(
-        name: "/student/face-camera-page-screen", page: () => FaceCameraPage(),
-        binding: RegisterFaceBinding()
-        ),
+        name: "/student/face-camera-page-screen",
+        page: () => FaceCameraPage(),
+        binding: RegisterFaceBinding()),
   ];
 }

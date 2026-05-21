@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:stipres/constants/styles.dart';
-import 'package:stipres/controllers/features_student/account/register_face_controller.dart';
-import 'package:stipres/screens/features_student/account/face_registry/face_guide.dart';
+import 'package:stipres/controllers/features_student/account/register_setting_face_controller.dart';
 import 'package:stipres/theme/theme_helper.dart' as styles;
 import 'package:stipres/screens/reusable/custom_header.dart';
 // import 'face_register_guide_page.dart'; // uncomment setelah file dibuat
 
 class FaceRegisterPage extends StatelessWidget {
   FaceRegisterPage({Key? key}) : super(key: key);
-  final _controller = Get.find<RegisterFaceController>();
+  final _controller = Get.find<RegisterSettingFaceController>();
 
   @override
   Widget build(BuildContext context) {
