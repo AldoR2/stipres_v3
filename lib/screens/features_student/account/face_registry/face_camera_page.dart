@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:stipres/constants/styles.dart';
+import 'package:stipres/controllers/features_student/account/register_face_controller.dart';
 import 'package:stipres/screens/reusable/custom_header.dart';
 import 'package:stipres/theme/theme_helper.dart' as styles;
 
@@ -31,8 +32,8 @@ class FaceCameraPage extends StatefulWidget {
 class _FaceCameraPageState extends State<FaceCameraPage>
     with TickerProviderStateMixin {
   // ─── Kamera ───────────────────────────────────────────────────────────────
-  CameraController? _cameraController;
-  bool _isCameraReady = false;
+  // CameraController? _cameraController;
+  final _controller = Get.find<RegisterFaceController>();
 
   // ─── State UI ─────────────────────────────────────────────────────────────
   FaceStep _currentStep = FaceStep.front;
@@ -54,7 +55,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   void initState() {
     super.initState();
     _initAnimations();
-    _initCamera();
+    // _initCamera();
   }
 
   // ─── Init animasi ─────────────────────────────────────────────────────────
@@ -82,35 +83,9 @@ class _FaceCameraPageState extends State<FaceCameraPage>
     );
   }
 
-  // ─── Init kamera depan ────────────────────────────────────────────────────
-  Future<void> _initCamera() async {
-    try {
-      final cameras = await availableCameras();
-      if (cameras.isEmpty) return;
-
-      final front = cameras.firstWhere(
-        (c) => c.lensDirection == CameraLensDirection.front,
-        orElse: () => cameras.first,
-      );
-
-      _cameraController = CameraController(
-        front,
-        ResolutionPreset.high,
-        enableAudio: false,
-      );
-
-      await _cameraController!.initialize();
-
-      if (!mounted) return;
-      setState(() => _isCameraReady = true);
-    } catch (e) {
-      debugPrint('Camera init error: $e');
-    }
-  }
-
   @override
   void dispose() {
-    _cameraController?.dispose();
+    // _cameraController?.dispose();
     _progressAnimController.dispose();
     _countdownController.dispose();
     _scanAnimController.dispose();
@@ -152,12 +127,15 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   bool get _isValid => _validation == FaceValidation.valid;
 
   String get _validationHint {
-    if (_captureState == CaptureState.capturing) return 'Mengambil gambar...';
-    if (_captureState == CaptureState.valid)
-      return _stepMeta[_currentStep]!.validLabel;
+    final validation = _validationFromController;
+
+    if (_controller.isRegistering.value) {
+      return "Mendaftarkan wajah...";
+    }
+
     switch (_validation) {
       case FaceValidation.noFace:
-        return _stepMeta[_currentStep]!.subtitle;
+        return 'Posisikan wajah Anda di dalam frame';
       case FaceValidation.tooClose:
         return 'Terlalu dekat, mundur sedikit';
       case FaceValidation.tooFar:
@@ -167,9 +145,9 @@ class _FaceCameraPageState extends State<FaceCameraPage>
       case FaceValidation.notTurnedRight:
         return 'Putar kepala lebih ke kanan';
       case FaceValidation.eyesOpen:
-        return 'Kedipkan mata sekarang';
+        return 'Buka mata dengan jelas';
       case FaceValidation.valid:
-        return _stepMeta[_currentStep]!.validLabel;
+        return 'Wajah valid, siap didaftarkan';
     }
   }
 
@@ -178,6 +156,29 @@ class _FaceCameraPageState extends State<FaceCameraPage>
     if (_captureState == CaptureState.valid || _isValid) return blueColor;
     if (_validation == FaceValidation.noFace) return greyColor;
     return Colors.orange;
+  }
+
+  FaceValidation get _validationFromController {
+    if (!_controller.isSingleFace.value) {
+      return FaceValidation.noFace;
+    }
+    if (!_controller.isFaceTooSmall.value) {
+      return FaceValidation.tooFar;
+    }
+    if (!_controller.isFaceCentered.value) {
+      return FaceValidation.notCentered;
+    }
+    if (!_controller.isEyesOpen.value) {
+      return FaceValidation.eyesOpen;
+    }
+    if (!_controller.isHeadStraight.value) {
+      return FaceValidation.notTurnedRight;
+    }
+    if (!_controller.isFaceValid.value) {
+      return FaceValidation.valid;
+    }
+
+    return FaceValidation.noFace;
   }
 
   // ─── Simulasi validasi ────────────────────────────────────────────────────
@@ -290,6 +291,10 @@ class _FaceCameraPageState extends State<FaceCameraPage>
 
                     SizedBox(height: sh * 0.022),
 
+                    _buildResultCard(sw),
+
+                    SizedBox(height: sh * 0.022),
+
                     // ── Progress bar ──────────────────────────────────────
                     _buildProgressBar(sw, dark),
 
@@ -366,6 +371,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   // ─── Frame kamera bulat dengan gradient border ────────────────────────────
   Widget _buildCameraFrame(
       double sw, double sh, double frameW, double frameH, bool dark) {
+    final bool isValid = _controller.isFaceValid.value;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       padding: const EdgeInsets.all(3),
@@ -407,14 +413,25 @@ class _FaceCameraPageState extends State<FaceCameraPage>
               fit: StackFit.expand,
               children: [
                 // ── Live preview ─────────────────────────────────────────
-                _isCameraReady && _cameraController != null
-                    ? _buildCameraPreview(frameW, frameH)
-                    : _buildCameraLoading(dark, frameW),
+
+                Obx(() {
+                  final cameraReady = _controller.isCameraInitialize.value &&
+                      _controller.cameraController != null &&
+                      _controller.cameraController!.value.isInitialized;
+
+                  return cameraReady
+                      ? _buildCameraPreview(frameW, frameH)
+                      : _buildCameraLoading(dark, frameW);
+                }),
 
                 // ── Overlay biru saat valid ───────────────────────────────
-                if (_captureState == CaptureState.valid ||
-                    _captureState == CaptureState.capturing)
-                  Container(color: blueColor.withOpacity(0.06)),
+                Obx(() {
+                  return _controller.isFaceValid.value
+                      ? Container(
+                          color: blueColor.withOpacity(0.06),
+                        )
+                      : const SizedBox.shrink();
+                }),
 
                 // ── Flash putih saat capture ──────────────────────────────
                 if (_captureState == CaptureState.capturing)
@@ -482,6 +499,49 @@ class _FaceCameraPageState extends State<FaceCameraPage>
     );
   }
 
+  Widget _buildResultCard(double sw) {
+    return Obx(() {
+      if (!_controller.hasResult.value) {
+        return const SizedBox.shrink();
+      }
+
+      return Container(
+        width: double.infinity,
+        margin: EdgeInsets.symmetric(horizontal: sw * 0.08),
+        padding: EdgeInsets.all(sw * 0.035),
+        decoration: BoxDecoration(
+          color: _controller.isSuccess.value
+              ? Colors.green.withOpacity(0.1)
+              : Colors.red.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: _controller.isSuccess.value ? Colors.green : Colors.red,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _controller.resultTitle.value,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w700,
+                color: _controller.isSuccess.value ? Colors.green : Colors.red,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _controller.resultMessage.value,
+              style: GoogleFonts.poppins(
+                fontSize: sw * 0.032,
+                color: styles.getTextColor(context),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
   // ─── Camera preview ───────────────────────────────────────────────────────
   Widget _buildCameraPreview(double frameW, double frameH) {
     return SizedBox.expand(
@@ -489,9 +549,9 @@ class _FaceCameraPageState extends State<FaceCameraPage>
         fit: BoxFit.fitWidth,
         clipBehavior: Clip.hardEdge,
         child: SizedBox(
-          width: _cameraController!.value.previewSize!.height,
-          height: _cameraController!.value.previewSize!.width,
-          child: CameraPreview(_cameraController!),
+          width: _controller.cameraController!.value.previewSize!.height,
+          height: _controller.cameraController!.value.previewSize!.width,
+          child: CameraPreview(_controller.cameraController!),
         ),
       ),
     );
@@ -634,62 +694,53 @@ class _FaceCameraPageState extends State<FaceCameraPage>
 
   // ─── Sim chips + batal ────────────────────────────────────────────────────
   Widget _buildBottomSection(double sw, double sh) {
-    if (_captureState == CaptureState.done) return const SizedBox.shrink();
-
-    return Column(
-      children: [
-        // Sim chips — HAPUS saat integrasi ML Kit
-        Wrap(
-          spacing: 7,
-          runSpacing: 7,
-          alignment: WrapAlignment.center,
-          children: [
-            _SimChip(
-                label: 'Tidak ada wajah',
-                onTap: () => _simulateValidation(FaceValidation.noFace)),
-            _SimChip(
-                label: 'Terlalu dekat',
-                onTap: () => _simulateValidation(FaceValidation.tooClose)),
-            _SimChip(
-                label: 'Terlalu jauh',
-                onTap: () => _simulateValidation(FaceValidation.tooFar)),
-            _SimChip(
-                label: 'Tidak center',
-                onTap: () => _simulateValidation(FaceValidation.notCentered)),
-            _SimChip(
-                label: '✓ Valid',
-                onTap: () => _simulateValidation(FaceValidation.valid),
-                isBlue: true),
-          ],
-        ),
-
-        SizedBox(height: sh * 0.02),
-
-        // ── Tombol Batal dengan background ───────────────────────────────
-        GestureDetector(
-          onTap: () => Get.back(),
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: sw * 0.18,
-              vertical: sw * 0.03,
+    return Obx(() {
+      return Column(
+        children: [
+          SizedBox(
+            width: sw * 0.86,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: _controller.isFaceValid.value &&
+                      !_controller.isRegistering.value
+                  ? _controller.registerFace
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: blueColor,
+                disabledBackgroundColor: greyColor.withOpacity(0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: Text(
+                _controller.isRegistering.value
+                    ? 'Mendaftarkan...'
+                    : _controller.isAvailable.value
+                        ? 'Update Wajah'
+                        : 'Daftarkan Wajah',
+                style: GoogleFonts.poppins(
+                  fontSize: sw * 0.038,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
             ),
-            decoration: BoxDecoration(
-              color: blueColor.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: blueColor.withOpacity(0.3)),
-            ),
+          ),
+          SizedBox(height: sh * 0.015),
+          GestureDetector(
+            onTap: () => Get.back(),
             child: Text(
               'Batal',
               style: GoogleFonts.poppins(
-                fontSize: sw * 0.04,
+                fontSize: sw * 0.038,
                 fontWeight: FontWeight.w500,
                 color: blueColor,
               ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }
 

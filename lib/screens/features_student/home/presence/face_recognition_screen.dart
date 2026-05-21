@@ -5,6 +5,7 @@ import 'package:stipres/constants/styles.dart';
 import 'package:stipres/controllers/features_student/home/face_attendance_controller.dart';
 import 'package:stipres/screens/features_student/widgets/face_box_painter.dart';
 import 'package:stipres/screens/reusable/custom_header.dart';
+import 'package:stipres/theme/theme_helper.dart' as styles;
 
 class FaceRecognitionScreen extends StatefulWidget {
   const FaceRecognitionScreen({super.key});
@@ -32,7 +33,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
           }
           return Column(
             children: [
-              CustomHeader(title: "Presensi dengan Deteksi Wajah"),
+              CustomHeader(title: "Presensi dengan Deteksi Wajah", backgroundColor: styles.getMainColor(context)),
               const SizedBox(height: 16),
               Expanded(
                 child: LayoutBuilder(

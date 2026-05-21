@@ -79,10 +79,19 @@ class FaceAttendanceController extends GetxController {
   }
 
   Future<void> initializeCamera() async {
-    await _cameraService.initialize();
-
-    isCameraInitialize.value = true;
-    await startFaceDetection();
+    try {
+      await _cameraService.initialize();
+      isCameraInitialize.value = true;
+      await startFaceDetection();
+      log.f("Tess");
+    } catch (e) {
+      log.f("Tess 2");
+      Get.back();
+      Get.dialog(FailedDialog(
+          title: "Gagal membaca kamera",
+          subtitle: e.toString(),
+          gifAssetPath: 'assets/gif/failed_animation.gif'));
+    }
   }
 
   Future<void> loadInitialData() async {
@@ -304,7 +313,8 @@ class FaceAttendanceController extends GetxController {
     hasEyeOpenBeforeBlink.value = false;
     hasBlinked.value = false;
     livenessMessage.value = 'Silahkan posisikan wajah';
-    livenessInstruction.value = "Lihar lurus ke kamera";
+    livenessInstruction.value = "Lihat lurus ke kamera";
+    currentLivenessStep.value = LivenessStep.lookStraight;
   }
 
   void updateBlinkLiveness({

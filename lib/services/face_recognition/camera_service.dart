@@ -2,12 +2,28 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CameraService extends GetxService {
   CameraController? controller;
 
   Future<void> initialize() async {
+    final status = await Permission.camera.request();
+
+    if (status.isDenied) {
+      throw Exception("Izin kamera ditolak");
+    }
+
+    if (status.isPermanentlyDenied) {
+      openAppSettings();
+      throw Exception("Izin kamera diblokir permanen. Aktifkan di pengaturan.");
+    }
+
     final cameras = await availableCameras();
+
+    if (cameras.isEmpty) {
+      throw Exception("Tidak ada kamera yang tersedia.");
+    }
 
     final frontCamera = cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front);

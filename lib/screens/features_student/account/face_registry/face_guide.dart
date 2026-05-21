@@ -178,7 +178,7 @@ class FaceRegisterGuidePage extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Get.to(FaceCameraPage());
+                  Get.toNamed("/student/face-camera-page-screen");
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: blueColor,

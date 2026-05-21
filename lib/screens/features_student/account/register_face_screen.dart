@@ -59,6 +59,12 @@ class RegisterFaceScreen extends StatelessWidget {
                           : "Daftarkan Wajah")),
                 );
               }),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: _ResultCard(),
+              ),
             )
           ],
         );

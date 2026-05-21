@@ -53,7 +53,7 @@ class RegisterFaceController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
-    mahasiswaId.value = _box.read("mahasiswa_id");
+    mahasiswaId.value = _box.read("mahasiswa_id") ?? 0;
 
     await fetchEmbedding();
     await initializeCamera();
@@ -142,6 +142,7 @@ class RegisterFaceController extends GetxController {
       hideLoading();
 
       if (result.status == 'success') {
+        isAvailable.value = true;
         setResult(
             title: "Berhasil",
             message: result.message.isNotEmpty
