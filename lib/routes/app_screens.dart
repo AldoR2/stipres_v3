@@ -239,6 +239,10 @@ class AppScreens {
         page: () => FaceRecognitionScreen(),
         binding: FaceRecognitionBinding()),
     GetPage(
+        name: "/student/register-face-screen",
+        page: () => RegisterFaceScreen(),
+        binding: RegisterFaceBinding()),
+    GetPage(
         name: "/student/face-attendance-screen",
         page: () => FaceAttendanceScreen(),
         binding: FaceAttendanceBinding()),
@@ -251,11 +255,17 @@ class AppScreens {
         page: () => LectureContentScreen()),
     GetPage(
         name: "/student/face-register-page-screen",
-        page: () => FaceRegisterPage()),
+        page: () => FaceRegisterPage(),
+        binding: RegisterFaceBinding()
+        ),
     GetPage(
         name: "/student/face-register-guide-screen",
-        page: () => FaceRegisterGuidePage()),
+        page: () => FaceRegisterGuidePage(),
+        binding: RegisterFaceBinding()
+        ),
     GetPage(
-        name: "/student/face-camera-page-screen", page: () => FaceCameraPage()),
+        name: "/student/face-camera-page-screen", page: () => FaceCameraPage(),
+        binding: RegisterFaceBinding()
+        ),
   ];
 }

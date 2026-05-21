@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:stipres/constants/styles.dart';
+import 'package:stipres/controllers/features_student/account/register_face_controller.dart';
 import 'package:stipres/screens/features_student/account/face_registry/face_guide.dart';
 import 'package:stipres/theme/theme_helper.dart' as styles;
 import 'package:stipres/screens/reusable/custom_header.dart';
 // import 'face_register_guide_page.dart'; // uncomment setelah file dibuat
 
 class FaceRegisterPage extends StatelessWidget {
-  const FaceRegisterPage({Key? key}) : super(key: key);
+  FaceRegisterPage({Key? key}) : super(key: key);
+  final _controller = Get.find<RegisterFaceController>();
 
   @override
   Widget build(BuildContext context) {
@@ -128,34 +130,46 @@ class FaceRegisterPage extends StatelessWidget {
                                       ),
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
-                                      "Belum ada data wajah terdaftar",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        color: styles
-                                            .getSecondaryTextColor(context),
-                                      ),
-                                    ),
+                                    Obx(() {
+                                      final status =
+                                          _controller.isAvailable.value;
+
+                                      return Text(
+                                        (!status)
+                                            ? "Belum ada data wajah terdaftar"
+                                            : "Data wajah sudah terdaftar",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: styles
+                                              .getSecondaryTextColor(context),
+                                        ),
+                                      );
+                                    })
                                   ],
                                 ),
                               ),
                               // Badge status
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: redColor.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  "Belum ada",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
-                                    color: redColor,
+                              Obx(() {
+                                final status = _controller.isAvailable.value;
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: (!status)
+                                        ? redColor.withOpacity(0.1)
+                                        : greenColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
-                                ),
-                              ),
+                                  child: Text(
+                                    (!status) ? "Belum ada" : "Tersedia",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                      color: (!status) ? redColor : greenColor,
+                                    ),
+                                  ),
+                                );
+                              })
                             ],
                           ),
                         ),
@@ -163,35 +177,44 @@ class FaceRegisterPage extends StatelessWidget {
                         const SizedBox(height: 20),
 
                         // ─── Tombol Tambah Wajah ──────────────────
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                Get.to(FaceRegisterGuidePage());
-                              },
-                              icon: Icon(Icons.add_circle_outline,
-                                  color: blueColor, size: 20),
-                              label: Text(
-                                "Tambahkan Data Wajah",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: blueColor,
-                                ),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                side: BorderSide(color: blueColor, width: 1.5),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
+                        Obx(() {
+                          final status = _controller.isAvailable.value;
+                          return Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                              child: SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton.icon(
+                                    onPressed: () {
+                                      Get.toNamed(
+                                          "/student/face-register-guide-screen");
+                                    },
+                                    icon: Icon(
+                                        (!status)
+                                            ? Icons.add_circle_outline
+                                            : Icons.change_circle_outlined,
+                                        color: blueColor,
+                                        size: 20),
+                                    label: Text(
+                                      (!status)
+                                          ? "Tambahkan Data Wajah"
+                                          : "Ganti Data Wajah",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: blueColor,
+                                      ),
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 14),
+                                      side: BorderSide(
+                                          color: blueColor, width: 1.5),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  )));
+                        })
                       ],
                     ),
                   ),

@@ -4,6 +4,7 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 class FaceDetectorService extends GetxService {
   final FaceDetector _faceDetector = FaceDetector(
       options: FaceDetectorOptions(
+        enableLandmarks: true,
           enableContours: false,
           enableClassification: true,
           enableTracking: true,

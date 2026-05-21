@@ -60,4 +60,38 @@ class FaceApiService extends GetxService {
           status: "error", message: "Terjadi kesalahan: $e", data: null);
     }
   }
+
+  Future<BaseResponse> getEmbedding({
+    required int mahasiswaId,
+  }) async {
+    try {
+      final token = await _box.read("auth_token");
+      final url = Uri.parse("$_baseURL/show?mahasiswa_id=$mahasiswaId");
+      log.d("URL: $url");
+
+      final response = await http.get(url, headers: {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      });
+      final body = jsonDecode(response.body);
+
+      if (response.statusCode == 401) {
+        log.f("Response 401");
+        final refreshSuccess = await tokenService.refreshToken();
+        if (refreshSuccess) {
+          return await getEmbedding(mahasiswaId: mahasiswaId);
+        }
+      }
+      log.d("Status code: ${response.statusCode}");
+      log.d("Response body: ${response.body}");
+
+      return BaseResponse(
+          status: body['status'], message: body['message'], data: body['data']);
+    } catch (e) {
+      log.e("Error: $e");
+      return BaseResponse(
+          status: "error", message: "Terjadi kesalahan: $e", data: null);
+    }
+  }
 }

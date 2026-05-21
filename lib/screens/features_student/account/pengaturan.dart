@@ -6,7 +6,6 @@ import 'package:stipres/constants/styles.dart';
 import 'package:stipres/controllers/features_student/account/settings_controller.dart';
 import 'package:stipres/screens/features_student/account/bantuan.dart';
 import 'package:stipres/screens/features_student/account/face_registry/face_register_page.dart';
-import 'package:stipres/screens/reusable/custom_header.dart';
 import 'package:stipres/theme/dialog_theme_helper.dart';
 import 'package:stipres/theme/theme_controller.dart';
 import 'package:stipres/theme/theme_helper.dart' as styles;
@@ -151,7 +150,8 @@ class _PengaturanState extends State<Pengaturan> {
                               children: [
                                 InkWell(
                                   onTap: () {
-                                    Get.to(FaceRegisterPage());
+                                    Get.toNamed(
+                                        "/student/face-register-page-screen");
                                   },
                                   borderRadius: BorderRadius.circular(
                                       10), // opsional, supaya ripple-nya lebih bagus

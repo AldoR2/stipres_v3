@@ -2,8 +2,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:stipres/constants/styles.dart';
-import 'package:stipres/controllers/features_student/home/face_recognition_controller.dart';
-import 'package:stipres/main.dart';
+import 'package:stipres/controllers/features_student/home/face_attendance_controller.dart';
+import 'package:stipres/screens/features_student/widgets/face_box_painter.dart';
 import 'package:stipres/screens/reusable/custom_header.dart';
 
 class FaceRecognitionScreen extends StatefulWidget {
@@ -14,204 +14,312 @@ class FaceRecognitionScreen extends StatefulWidget {
 }
 
 class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
-  CameraController? _controller;
-  Future<void>? _initializeControllerFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _initCamera();
-  }
-
-  void _initCamera() {
-    if (cameras.isEmpty) return;
-
-    final frontCamera = cameras.firstWhere(
-      (camera) => camera.lensDirection == CameraLensDirection.front,
-      orElse: () => cameras.first,
-    );
-
-    Get.find<FaceRecognitionController>();
-
-    _controller = CameraController(frontCamera, ResolutionPreset.medium,
-        enableAudio: false, imageFormatGroup: ImageFormatGroup.nv21);
-
-    _initializeControllerFuture = _controller!.initialize();
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
+  final controller = Get.find<FaceAttendanceController>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: mainColor,
-      body: Column(
-        children: [
-          CustomHeader(title: "Presensi dengan Deteksi Wajah"),
-          const SizedBox(height: 16),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final cameraHeight = constraints.maxHeight * 0.52;
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Presensi Mata Kuliah",
-                        style: TextStyle(
-                          color: blueColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // ═══════════════════════════════════════
-                      // 📷 CAMERA AREA
-                      // ═══════════════════════════════════════
-                      SizedBox(
-                        height: cameraHeight,
-                        width: double.infinity,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Camera preview
-                            FutureBuilder(
-                              future: _initializeControllerFuture,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  return ClipRRect(
-                                    child: SizedBox.expand(
-                                      child: FittedBox(
-                                        fit: BoxFit.cover,
-                                        child: SizedBox(
-                                          width: _controller!
-                                              .value.previewSize!.height,
-                                          height: _controller!
-                                              .value.previewSize!.width,
-                                          child: CameraPreview(_controller!),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  return const Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                }
-                              },
-                            ),
-
-                            // Vignette (area luar frame digelapkan)
-                            _VignetteOverlay(
-                              frameSize: cameraHeight * 0.74,
-                              totalHeight: cameraHeight,
-                            ),
-
-                            // Face frame
-                            _FaceDetectionFrame(
-                              frameSize: cameraHeight * 0.74,
-                            ),
-
-                            // Scan line
-                            _ScanLineAnimation(
-                              frameSize: cameraHeight * 0.74,
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      Center(
-                        child: Text(
-                          "Posisikan wajah Anda berada di dalam frame",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Mendeteksi Wajah....",
+        backgroundColor: mainColor,
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: controller.captureFace,
+        //   child: const Icon(Icons.camera),
+        // ),
+        body: Obx(() {
+          if (!controller.isCameraInitialize.value) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          return Column(
+            children: [
+              CustomHeader(title: "Presensi dengan Deteksi Wajah"),
+              const SizedBox(height: 16),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final cameraHeight = constraints.maxHeight * 0.52;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Presensi Mata Kuliah",
                             style: TextStyle(
                               color: blueColor,
-                              fontStyle: FontStyle.italic,
-                              fontSize: 14,
+                              fontSize: 15,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                      ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: cameraHeight,
+                            width: double.infinity,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                // Camera preview
+                                FutureBuilder(
+                                  future: controller.initializeCamera(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                      return ClipRRect(
+                                        child: SizedBox.expand(
+                                          child: FittedBox(
+                                            fit: BoxFit.cover,
+                                            child: SizedBox(
+                                              width: controller
+                                                  .cameraController!
+                                                  .value
+                                                  .previewSize!
+                                                  .height,
+                                              height: controller
+                                                  .cameraController!
+                                                  .value
+                                                  .previewSize!
+                                                  .width,
+                                              child: CameraPreview(
+                                                  controller.cameraController!),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    } else {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                  },
+                                ),
+                                Obx(() {
+                                  return CustomPaint(
+                                    painter: FaceBoxPainter(
+                                        faces: controller.faceRects.toList(),
+                                        imageSize: controller.imageSize.value,
+                                        isFrontCamera: true),
+                                  );
+                                }),
 
-                      const Spacer(),
+                                // Vignette (area luar frame digelapkan)
+                                _VignetteOverlay(
+                                  frameSize: cameraHeight * 0.74,
+                                  totalHeight: cameraHeight,
+                                ),
 
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: blueColor,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                                // Face frame
+                                _FaceDetectionFrame(
+                                  frameSize: cameraHeight * 0.74,
+                                ),
+
+                                // Scan line
+                                _ScanLineAnimation(
+                                  frameSize: cameraHeight * 0.74,
+                                ),
+                              ],
                             ),
-                            elevation: 0,
                           ),
-                          child: const Text(
-                            "Batal",
-                            style: TextStyle(
+                          const SizedBox(height: 20),
+                          // Center(child: Obx(() {
+                          //   return Column(
+                          //     children: [
+                          //       Text(
+                          //         (controller.isSingleFace.value)
+                          //             ? "1 Wajah telah terdeteksi"
+                          //             : "Pastikan hanya ada 1 wajah yang terdeteksi",
+                          //         textAlign: TextAlign.center,
+                          //         style: TextStyle(
+                          //           color: Colors.grey[600],
+                          //           fontSize: 13,
+                          //         ),
+                          //       ),
+                          //       Text(
+                          //         (controller.isFaceCentered.value)
+                          //             ? "Posisi wajah sudah di tengah"
+                          //             : "Posisikan wajah Anda berada di tengah frame",
+                          //         textAlign: TextAlign.center,
+                          //         style: TextStyle(
+                          //           color: Colors.grey[600],
+                          //           fontSize: 13,
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   );
+                          // })),
+                          const SizedBox(height: 16),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
                               color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                      ),
+                            child: Center(child: Obx(() {
+                              final message =
+                                  controller.livenessInstruction.value;
 
-                      const SizedBox(height: 24),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+                              return Text(
+                                (message),
+                                style: TextStyle(
+                                  color: blueColor,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              );
+                            })),
+                          ),
+                          const Spacer(),
+                          // Obx(() {
+                          //   if (controller.isLoadingRegisteredEmbedding.value) {
+                          //     return const ElevatedButton(
+                          //         onPressed: null,
+                          //         child: Text("Memuat data wajah..."));
+                          //   }
+
+                          //   if (!controller.hasRegisteredEmbedding.value) {
+                          //     return ElevatedButton(
+                          //         onPressed: () {
+                          //           Get.snackbar("Wajah Belum Terdaftar",
+                          //               "Silahkan daftarkan wajah terlebih dahulu melalui menu Setting");
+                          //         },
+                          //         child: const Text("Wajah Belum Terdaftar"));
+                          //   }
+
+                          //   if (controller.isComparingface.value) {
+                          //     return const ElevatedButton(
+                          //         onPressed: null,
+                          //         child: Text("Memproses Presensi..."));
+                          //   }
+
+                          //   return ElevatedButton(
+                          //       onPressed: controller.isFaceValid.value
+                          //           ? () => controller.processFaceAttendance()
+                          //           : null,
+                          //       child: const Text("Presensi Sekarang"));
+                          // }),
+                          // SizedBox(
+                          //   width: double.infinity,
+                          //   child: ElevatedButton(
+                          //     onPressed: () => Navigator.pop(context),
+                          //     style: ElevatedButton.styleFrom(
+                          //       backgroundColor: blueColor,
+                          //       padding:
+                          //           const EdgeInsets.symmetric(vertical: 16),
+                          //       shape: RoundedRectangleBorder(
+                          //         borderRadius: BorderRadius.circular(10),
+                          //       ),
+                          //       elevation: 0,
+                          //     ),
+                          //     child: const Text(
+                          //       "Batal",
+                          //       style: TextStyle(
+                          //         color: Colors.white,
+                          //         fontSize: 15,
+                          //         fontWeight: FontWeight.w600,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                          const SizedBox(height: 24),
+                          Positioned(
+                              left: 16,
+                              right: 16,
+                              bottom: 16,
+                              child: _ValidationCard()),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        }));
   }
 }
 
-// ══════════════════════════════════════════════════════
-// 🌑 VIGNETTE OVERLAY
-// ══════════════════════════════════════════════════════
+class _ValidationCard extends GetView<FaceAttendanceController> {
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.55),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _ValidationItem(
+              label: 'Satu wajah',
+              value: controller.isSingleFace.value,
+            ),
+            _ValidationItem(
+              label: 'Wajah di tengah',
+              value: controller.isFaceCentered.value,
+            ),
+            _ValidationItem(
+              label: 'Wajah cukup dekat',
+              value: !controller.isFaceTooSmall.value,
+            ),
+            _ValidationItem(
+              label: 'Mata terbuka',
+              value: controller.isEyesOpen.value,
+            ),
+            _ValidationItem(
+              label: 'Kepala lurus',
+              value: controller.isHeadStraight.value,
+            ),
+            _ValidationItem(
+              label: controller.livenessMessage.value,
+              value: controller.livenessPassed.value,
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+class _ValidationItem extends StatelessWidget {
+  final String label;
+  final bool value;
+
+  const _ValidationItem({
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          value ? Icons.check_circle : Icons.cancel,
+          color: value ? Colors.greenAccent : Colors.redAccent,
+          size: 18,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class _VignetteOverlay extends StatelessWidget {
   final double frameSize;
@@ -260,10 +368,6 @@ class _VignettePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-
-// ══════════════════════════════════════════════════════
-// 🎯 FACE DETECTION FRAME — FIXED CORNER BRACKETS
-// ══════════════════════════════════════════════════════
 
 class _FaceDetectionFrame extends StatelessWidget {
   final double frameSize;
@@ -412,7 +516,13 @@ class _ScanLineAnimationState extends State<_ScanLineAnimation>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _controller.repeat(reverse: true);
+      }
+    });
   }
 
   @override

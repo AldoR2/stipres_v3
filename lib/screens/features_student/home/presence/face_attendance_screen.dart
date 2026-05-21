@@ -12,10 +12,10 @@ class FaceAttendanceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: controller.captureFace,
-        child: const Icon(Icons.camera),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: controller.captureFace,
+      //   child: const Icon(Icons.camera),
+      // ),
       body: Obx(() {
         if (!controller.isCameraInitialize.value) {
           return const Center(
