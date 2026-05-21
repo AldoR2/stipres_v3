@@ -18,7 +18,10 @@ class OfflineScreen extends StatelessWidget {
       body: Stack(
         clipBehavior: Clip.none,
         children: [
-          CustomHeader(title: "Presensi Mata Kuliah"),
+          CustomHeader(
+            title: "Presensi Mata Kuliah",
+            backgroundColor: styles.getMainColor(context),
+          ),
           SizedBox(
             height: MediaQuery.of(context).size.height,
             child: Center(
