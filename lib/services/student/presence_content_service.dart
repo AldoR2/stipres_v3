@@ -65,7 +65,7 @@ class PresenceContentService extends GetxService {
       String? ext) async {
     try {
       final token = await _box.read("auth_token");
-      log.d("Path: ${bukti!.path}");
+      log.d("Path: ${bukti?.path}");
 
       final url = Uri.parse("${global}activity/presenceActivity");
       log.d(url);

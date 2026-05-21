@@ -136,7 +136,7 @@ class PresenceContentController extends GetxController {
     log.d("Location Nama: ${presence.value.namaLokasi}");
     var mahasiswaId = _box.read("mahasiswa_id");
 
-    Get.toNamed("/student/geolocation-screen", arguments: [
+    Get.toNamed("/student/face-recognition-screen", arguments: [
       presensisId.value,
       presence.value.lokasiId,
       presence.value.namaLokasi,
@@ -194,6 +194,14 @@ class PresenceContentController extends GetxController {
 
       log.d(bukti.value);
       log.d("Cek ext: ${buktiExtension.value}");
+
+      log.d("DEbugg:: $mahasiswaId");
+      log.d("DEbugg:: $presensisId");
+      log.d("DEbugg:: ${statusAbsen.value}");
+      log.d("DEbugg:: ${waktuPresensi}");
+      log.d("DEbugg:: ${alasan}");
+      log.d("DEbugg:: ${buktiFinal}");
+      log.d("DEbugg:: ${buktiExtension.value}");
 
       final result = await presenceContentService.uploadPresence(
           mahasiswaId,

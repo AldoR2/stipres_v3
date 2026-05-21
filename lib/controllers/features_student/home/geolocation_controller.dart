@@ -2,6 +2,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
+import 'package:stipres/controllers/features_student/home/presence_content_controller.dart';
 import 'package:stipres/models/students/validation_step_model.dart';
 import 'package:stipres/screens/reusable/failed_dialog.dart';
 import 'package:stipres/screens/reusable/location_dialog.dart';
@@ -27,6 +28,8 @@ class GeolocationController extends GetxController {
   LocationPermissionService locationPermissionService =
       LocationPermissionService();
   LocationStudentService locationStudentService = LocationStudentService();
+  final presenceContentController = Get.find<PresenceContentController>();
+
   final security = SecurityLocationService();
 
   final Logger log = Logger();
@@ -35,6 +38,7 @@ class GeolocationController extends GetxController {
   final Rxn<LatLng> userLocation = Rxn<LatLng>();
   final RxBool isInsideRadius = false.obs;
   final mahasiswaId = 0.obs;
+  final presensisId = 0.obs;
 
   final errorMessage = ''.obs;
 
@@ -49,6 +53,7 @@ class GeolocationController extends GetxController {
   }
 
   Future<void> initPage() async {
+    presensisId.value = Get.arguments[0] as int;
     final lokasiId = Get.arguments[1] as int;
     mahasiswaId.value = Get.arguments[3] as int;
     await fetchLocation(lokasiId);
@@ -123,12 +128,13 @@ class GeolocationController extends GetxController {
     final result = await runValidation();
 
     if (result == true) {
-      Get.dialog(SuccessDialog(
-          title: "Presensi berhasil",
-          subtitle: "Data presensi berhasil ditambahkan",
-          gifAssetPath: "assets/gif/success_animation.gif"));
-      Get.toNamed('/student/face-attendance-screen',
-          arguments: mahasiswaId.value);
+      presenceContentController.submitPresence();
+      // Get.dialog(SuccessDialog(
+      //     title: "Presensi berhasil",
+      //     subtitle: "Data presensi berhasil ditambahkan",
+      //     gifAssetPath: "assets/gif/success_animation.gif"));
+      // Get.toNamed('/student/face-attendance-screen',
+      //     arguments: mahasiswaId.value);
     } else {
       Get.dialog(FailedDialog(
           title: "Presensi gagal",
