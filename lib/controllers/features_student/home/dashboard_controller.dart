@@ -133,11 +133,11 @@ class DashboardController extends GetxController {
   }
 
   void buttonAction(JadwalModelApi jadwal) {
-    if (jadwal.lokasi == "-") {
-      Get.toNamed("/student/presence-content-screen",
-          arguments: [jadwal.presensiId, jadwal.presensisId]);
-    } else {
-      Get.toNamed("/student/offline-screen");
-    }
+    Get.toNamed("/student/presence-content-screen",
+        arguments: [jadwal.presensiId, jadwal.presensisId]);
+    // if (jadwal.lokasi == "-") {
+    // } else {
+    //   Get.toNamed("/student/offline-screen");
+    // }
   }
 }

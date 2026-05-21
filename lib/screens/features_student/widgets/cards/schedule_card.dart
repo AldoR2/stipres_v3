@@ -218,11 +218,8 @@ class JadwalCard extends StatelessWidget {
                               label: 'Zoom',
                               color: Color(0xFFF4D8FB),
                               onTap: () {
-                                (jadwal.lokasi == "-")
-                                    ? Get.toNamed(
-                                        "/student/lecture-content-screen",
-                                        arguments: jadwal.presensisId)
-                                    : Get.toNamed("/student/offline-screen");
+                                Get.toNamed("/student/lecture-content-screen",
+                                    arguments: jadwal.presensisId);
                               },
                             ),
                           ],
