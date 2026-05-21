@@ -53,6 +53,9 @@ import 'package:stipres/screens/features_lecturer/home/presence/presence_detail_
 import 'package:stipres/screens/features_student/account/alamat_email.dart'
     as student;
 import 'package:stipres/screens/features_student/account/bantuan.dart';
+import 'package:stipres/screens/features_student/account/face_registry/face_camera_page.dart';
+import 'package:stipres/screens/features_student/account/face_registry/face_guide.dart';
+import 'package:stipres/screens/features_student/account/face_registry/face_register_page.dart';
 import 'package:stipres/screens/features_student/account/kebijakan_privasi.dart';
 import 'package:stipres/screens/features_student/account/ketentuan_layanan.dart';
 import 'package:stipres/screens/features_student/account/pengaturan.dart'
@@ -245,6 +248,14 @@ class AppScreens {
         binding: GeolocationBinding()),
     GetPage(
         name: "/student/lecture-content-screen",
-        page: () => LectureContentScreen())
+        page: () => LectureContentScreen()),
+    GetPage(
+        name: "/student/face-register-page-screen",
+        page: () => FaceRegisterPage()),
+    GetPage(
+        name: "/student/face-register-guide-screen",
+        page: () => FaceRegisterGuidePage()),
+    GetPage(
+        name: "/student/face-camera-page-screen", page: () => FaceCameraPage()),
   ];
 }

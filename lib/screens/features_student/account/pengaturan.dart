@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:stipres/constants/styles.dart';
 import 'package:stipres/controllers/features_student/account/settings_controller.dart';
 import 'package:stipres/screens/features_student/account/bantuan.dart';
+import 'package:stipres/screens/features_student/account/face_registry/face_register_page.dart';
+import 'package:stipres/screens/reusable/custom_header.dart';
 import 'package:stipres/theme/dialog_theme_helper.dart';
 import 'package:stipres/theme/theme_controller.dart';
 import 'package:stipres/theme/theme_helper.dart' as styles;
@@ -147,6 +149,71 @@ class _PengaturanState extends State<Pengaturan> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                InkWell(
+                                  onTap: () {
+                                    Get.to(FaceRegisterPage());
+                                  },
+                                  borderRadius: BorderRadius.circular(
+                                      10), // opsional, supaya ripple-nya lebih bagus
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12.0,
+                                        horizontal:
+                                            4.0), // ⬅️ memperluas area klik secara vertikal
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image.asset(
+                                            'assets/icons/ic_face_register.png',
+                                            height: 30,
+                                            width: 30),
+                                        const SizedBox(width: 16),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Pengenalan Wajah",
+                                              style:
+                                                  GoogleFonts.plusJakartaSans(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color:
+                                                          styles.getTextColor(
+                                                              context)),
+                                            ),
+                                            SizedBox(height: 3),
+                                            Text(
+                                              "Presensi dengan deteksi wajah",
+                                              style: blackTextStyle.copyWith(
+                                                fontSize: 12,
+                                                color: Color.fromARGB(
+                                                    255, 161, 161, 161),
+                                                fontWeight: FontWeight.w800,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const Spacer(),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Color.fromARGB(
+                                                255, 30, 136, 228),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: const EdgeInsets.all(1.0),
+                                          child: const Icon(
+                                            Icons.chevron_right,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                                 InkWell(
                                   onTap: () {
                                     _controller.checkAvalaiblityBiometric();
