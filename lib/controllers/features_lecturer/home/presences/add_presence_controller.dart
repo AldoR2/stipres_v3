@@ -395,8 +395,15 @@ class AddPresenceController extends GetxController {
   Future<void> uploadPresence(String presensiId) async {
     try {
       log.d("Kategorii: ${selectedKategori.value.toLowerCase()}");
+      log.d("Lokasi: ${selectedLokasiId.value.toLowerCase()}");
+
+      if (selectedLokasiId.value == '0') {
+        log.d("Change");
+        // selectedLokasiId.value = '';
+      }
+
       log.d("status: ${selectedStatus.value}");
-      log.d("ruangan Id: ${ int.tryParse(selectedRuanganID.value)}");
+      log.d("ruangan Id: ${int.tryParse(selectedRuanganID.value)}");
       final result = await addPresenceLecturerService.uploadPresensi(
           PresenceRequest(
               presensiId: presensiId,

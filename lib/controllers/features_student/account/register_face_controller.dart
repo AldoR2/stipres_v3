@@ -48,6 +48,15 @@ class RegisterFaceController extends GetxController {
   final RxBool hasResult = false.obs;
   final RxBool isSuccess = false.obs;
 
+  final Rx<RegisterFaceStep> currentStep = RegisterFaceStep.front.obs;
+  final Rx<RegisterCaptureState> captureState = RegisterCaptureState.idle.obs;
+
+  final RxString instructionTitle = 'Lihat lurus ke depan'.obs;
+  final RxString instructionMessage = 'Posisikan wajah di tengah frame'.obs;
+
+  final RxBool blinkStarted = false.obs;
+  final RxBool livenessCompleted = false.obs;
+
   bool _isClose = false;
 
   @override
@@ -187,6 +196,10 @@ class RegisterFaceController extends GetxController {
         imageSize.value = Size(image.width.toDouble(), image.height.toDouble());
         isSingleFace.value = faces.length == 1;
 
+        if (faces.length != 1) {
+          resetRegisterStep();
+        }
+
         if (faces.isNotEmpty) {
           final face = faces.first;
           final faceWidth = face.boundingBox.width;
@@ -198,25 +211,27 @@ class RegisterFaceController extends GetxController {
           isEyesOpen.value = leftEye > 0.7 && rightEye > 0.7;
 
           final yaw = face.headEulerAngleY ?? 0;
-
           isHeadStraight.value = yaw.abs() < 15;
 
           final centerX = face.boundingBox.center.dx;
           final imageCenterX = image.width / 2;
           final diff = (centerX - imageCenterX).abs();
           isFaceCentered.value = diff < 80;
+
+          updateRegisterLiveness(
+              face: face, leftEye: leftEye, rightEye: rightEye);
         } else {
           isFaceTooSmall.value = false;
           isEyesOpen.value = false;
           isHeadStraight.value = false;
           isFaceCentered.value = false;
+          resetRegisterStep();
         }
 
         isFaceValid.value = isSingleFace.value &&
             isFaceCentered.value &&
             !isFaceTooSmall.value &&
-            isEyesOpen.value &&
-            isHeadStraight.value;
+            livenessCompleted.value;
       } catch (e) {
         log.e("Error: $e");
       } finally {
@@ -250,6 +265,85 @@ class RegisterFaceController extends GetxController {
     return InputImage.fromBytes(bytes: bytes, metadata: metadata);
   }
 
+  void updateRegisterLiveness({
+    required Face face,
+    required double leftEye,
+    required double rightEye,
+  }) {
+    final yaw = face.headEulerAngleY ?? 0;
+    log.d("Current step: ${currentStep.value}");
+    log.d("Yaw: $yaw");
+
+    final eyesOpen = leftEye > 0.7 && rightEye > 0.7;
+    final eyesClosed = leftEye < 0.3 && rightEye < 0.3;
+
+    if (!isSingleFace.value || isFaceTooSmall.value) {
+      resetRegisterStep();
+      return;
+    }
+
+    if (currentStep.value == RegisterFaceStep.front && !isFaceCentered.value) {
+      resetRegisterStep();
+      return;
+    }
+
+    switch (currentStep.value) {
+      case RegisterFaceStep.front:
+        instructionTitle.value = 'Lihat lurus ke depan';
+        instructionMessage.value = 'Hadapkan wajah lurus ke kamera';
+
+        if (yaw.abs() < 12 && eyesOpen) {
+          currentStep.value = RegisterFaceStep.right;
+          instructionTitle.value = 'Putar kepala ke kanan';
+          instructionMessage.value = 'Perlahan putar kepala ke kanan';
+        }
+        break;
+
+      case RegisterFaceStep.right:
+        instructionTitle.value = 'Putar kepala ke kanan';
+        instructionMessage.value = 'Perlahan putar kepala ke kanan';
+
+        if (yaw < -18) {
+          currentStep.value = RegisterFaceStep.left;
+          instructionTitle.value = 'Putar kepala ke kiri';
+          instructionMessage.value = 'Perlahan putar kepala ke kiri';
+        }
+        break;
+
+      case RegisterFaceStep.left:
+        instructionTitle.value = 'Putar kepala ke kiri';
+        instructionMessage.value = 'Perlahan putar kepala ke kiri';
+
+        if (yaw > 18) {
+          currentStep.value = RegisterFaceStep.blink;
+          instructionTitle.value = 'Kedipkan mata';
+          instructionMessage.value = 'Kedipkan mata satu kali';
+        }
+        break;
+
+      case RegisterFaceStep.blink:
+        instructionTitle.value = 'Kedipkan mata';
+        instructionMessage.value = 'Kedipkan mata satu kali';
+
+        if (eyesClosed) {
+          blinkStarted.value = true;
+        }
+
+        if (blinkStarted.value && eyesOpen) {
+          currentStep.value = RegisterFaceStep.completed;
+          livenessCompleted.value = true;
+          captureState.value = RegisterCaptureState.done;
+
+          instructionTitle.value = 'Verifikasi selesai';
+          instructionMessage.value = 'Wajah siap didaftarkan';
+        }
+        break;
+
+      case RegisterFaceStep.completed:
+        break;
+    }
+  }
+
   void setResult({
     required String title,
     required String message,
@@ -259,6 +353,19 @@ class RegisterFaceController extends GetxController {
     resultMessage.value = message;
     isSuccess.value = success;
     hasResult.value = true;
+  }
+
+  void resetRegisterStep() {
+    currentStep.value = RegisterFaceStep.front;
+    captureState.value = RegisterCaptureState.idle;
+
+    blinkStarted.value = false;
+    livenessCompleted.value = false;
+
+    instructionTitle.value = 'Lihat lurus ke depan';
+    instructionMessage.value = 'Posisikan wajah di tengah frame';
+
+    isFaceValid.value = false;
   }
 
   void clearResult() {
@@ -290,3 +397,7 @@ class RegisterFaceController extends GetxController {
     super.onClose();
   }
 }
+
+enum RegisterFaceStep { front, right, left, blink, completed }
+
+enum RegisterCaptureState { idle, valid, invalid, registering, done }

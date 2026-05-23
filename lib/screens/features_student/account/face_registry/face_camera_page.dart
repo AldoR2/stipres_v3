@@ -8,7 +8,6 @@ import 'package:stipres/screens/reusable/custom_header.dart';
 import 'package:stipres/theme/theme_helper.dart' as styles;
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
-enum FaceStep { front, right, blink }
 
 enum CaptureState { idle, validating, valid, capturing, done }
 
@@ -36,7 +35,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   final _controller = Get.find<RegisterFaceController>();
 
   // ─── State UI ─────────────────────────────────────────────────────────────
-  FaceStep _currentStep = FaceStep.front;
+  // FaceStep _currentStep = FaceStep.front;
   CaptureState _captureState = CaptureState.idle;
   FaceValidation _validation = FaceValidation.noFace;
 
@@ -46,6 +45,39 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   late AnimationController _countdownController;
   late AnimationController _scanAnimController;
   late Animation<double> _scanAnimation;
+
+  int getStepIndex(RegisterFaceStep step) {
+    switch (step) {
+      case RegisterFaceStep.front:
+        return 0;
+      case RegisterFaceStep.right:
+        return 1;
+      case RegisterFaceStep.left:
+        return 2;
+      case RegisterFaceStep.blink:
+        return 3;
+      case RegisterFaceStep.completed:
+        return 3;
+    }
+  }
+
+  int get _totalStep => 4;
+
+  int get _visibleStepIndex {
+    final step = _controller.currentStep.value;
+
+    switch (step) {
+      case RegisterFaceStep.front:
+        return 0;
+      case RegisterFaceStep.right:
+        return 1;
+      case RegisterFaceStep.left:
+        return 2;
+      case RegisterFaceStep.blink:
+      case RegisterFaceStep.completed:
+        return 3;
+    }
+  }
 
   // ─── Getter ───────────────────────────────────────────────────────────────
   double get _sw => MediaQuery.of(context).size.width;
@@ -93,7 +125,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   }
 
   void _updateProgressTarget() {
-    final target = (_stepIndex + 1) / FaceStep.values.length;
+    final target = (_visibleStepIndex + 1) / _totalStep;
     _progressAnimController.animateTo(
       target,
       duration: const Duration(milliseconds: 600),
@@ -101,28 +133,35 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   }
 
   // ─── Step metadata ────────────────────────────────────────────────────────
-  int get _stepIndex => FaceStep.values.indexOf(_currentStep);
+  int get _stepIndex =>
+      RegisterFaceStep.values.indexOf(_controller.currentStep.value);
 
-  Map<FaceStep, _StepMeta> get _stepMeta => {
-        FaceStep.front: _StepMeta(
-          title: 'Lihat lurus ke depan',
-          subtitle: 'Posisikan wajah Anda di dalam frame',
-          validLabel: 'Wajah lurus terdeteksi',
-          icon: Icons.arrow_upward_rounded,
-        ),
-        FaceStep.right: _StepMeta(
-          title: 'Putar kepala ke kanan',
-          subtitle: 'Perlahan putar kepala Anda ke kanan',
-          validLabel: 'Posisi kepala terdeteksi',
-          icon: Icons.arrow_forward_rounded,
-        ),
-        FaceStep.blink: _StepMeta(
-          title: 'Kedipkan mata anda',
-          subtitle: 'Silahkan kedipkan mata anda sekali',
-          validLabel: 'Kedipan terdeteksi',
-          icon: Icons.visibility_off_outlined,
-        ),
-      };
+  // Map<FaceStep, _StepMeta> get _stepMeta => {
+  //       FaceStep.front: _StepMeta(
+  //         title: 'Lihat lurus ke depan',
+  //         subtitle: 'Posisikan wajah Anda di dalam frame',
+  //         validLabel: 'Wajah lurus terdeteksi',
+  //         icon: Icons.arrow_upward_rounded,
+  //       ),
+  //       FaceStep.right: _StepMeta(
+  //         title: 'Putar kepala ke kanan',
+  //         subtitle: 'Perlahan putar kepala Anda ke kanan',
+  //         validLabel: 'Posisi kepala terdeteksi',
+  //         icon: Icons.arrow_forward_rounded,
+  //       ),
+  //       FaceStep.left: _StepMeta(
+  //         title: 'Putar kepala ke kiri',
+  //         subtitle: 'Perlahan putar kepala Anda ke kiri',
+  //         validLabel: 'Posisi kepala terdeteksi',
+  //         icon: Icons.arrow_back_rounded,
+  //       ),
+  //       FaceStep.blink: _StepMeta(
+  //         title: 'Kedipkan mata anda',
+  //         subtitle: 'Silahkan kedipkan mata anda sekali',
+  //         validLabel: 'Kedipan terdeteksi',
+  //         icon: Icons.visibility_off_outlined,
+  //       ),
+  //     };
 
   bool get _isValid => _validation == FaceValidation.valid;
 
@@ -133,7 +172,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
       return "Mendaftarkan wajah...";
     }
 
-    switch (_validation) {
+    switch (validation) {
       case FaceValidation.noFace:
         return 'Posisikan wajah Anda di dalam frame';
       case FaceValidation.tooClose:
@@ -162,7 +201,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
     if (!_controller.isSingleFace.value) {
       return FaceValidation.noFace;
     }
-    if (!_controller.isFaceTooSmall.value) {
+    if (_controller.isFaceTooSmall.value) {
       return FaceValidation.tooFar;
     }
     if (!_controller.isFaceCentered.value) {
@@ -174,7 +213,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
     if (!_controller.isHeadStraight.value) {
       return FaceValidation.notTurnedRight;
     }
-    if (!_controller.isFaceValid.value) {
+    if (_controller.isFaceValid.value) {
       return FaceValidation.valid;
     }
 
@@ -182,61 +221,61 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   }
 
   // ─── Simulasi validasi ────────────────────────────────────────────────────
-  void _simulateValidation(FaceValidation val) {
-    _countdownController.removeStatusListener(_onCountdownDone);
-    _countdownController.reset();
-    setState(() {
-      _validation = val;
-      _captureState = val == FaceValidation.valid
-          ? CaptureState.valid
-          : CaptureState.validating;
-    });
-    if (val == FaceValidation.valid) {
-      _countdownController.addStatusListener(_onCountdownDone);
-      _countdownController.forward();
-    }
-  }
+  // void _simulateValidation(FaceValidation val) {
+  //   _countdownController.removeStatusListener(_onCountdownDone);
+  //   _countdownController.reset();
+  //   setState(() {
+  //     _validation = val;
+  //     _captureState = val == FaceValidation.valid
+  //         ? CaptureState.valid
+  //         : CaptureState.validating;
+  //   });
+  //   if (val == FaceValidation.valid) {
+  //     _countdownController.addStatusListener(_onCountdownDone);
+  //     _countdownController.forward();
+  //   }
+  // }
 
-  void _onCountdownDone(AnimationStatus status) {
-    if (status == AnimationStatus.completed && mounted) _doCapture();
-  }
+  // void _onCountdownDone(AnimationStatus status) {
+  //   if (status == AnimationStatus.completed && mounted) _doCapture();
+  // }
 
-  void _doCapture() {
-    setState(() => _captureState = CaptureState.capturing);
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (!mounted) return;
-      _goNextStep();
-    });
-  }
+  // void _doCapture() {
+  //   setState(() => _captureState = CaptureState.capturing);
+  //   Future.delayed(const Duration(milliseconds: 700), () {
+  //     if (!mounted) return;
+  //     _goNextStep();
+  //   });
+  // }
 
-  void _goNextStep() {
-    _countdownController.removeStatusListener(_onCountdownDone);
-    _countdownController.reset();
-    final next = {
-      FaceStep.front: FaceStep.right,
-      FaceStep.right: FaceStep.blink,
-    };
-    if (next.containsKey(_currentStep)) {
-      setState(() {
-        _currentStep = next[_currentStep]!;
-        _captureState = CaptureState.idle;
-        _validation = FaceValidation.noFace;
-      });
-      _updateProgressTarget();
-    } else {
-      setState(() => _captureState = CaptureState.done);
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) Get.back();
-      });
-    }
-  }
+  // void _goNextStep() {
+  //   _countdownController.removeStatusListener(_onCountdownDone);
+  //   _countdownController.reset();
+  //   final next = {
+  //     RegisterFaceStep.front: RegisterFaceStep.right,
+  //     RegisterFaceStep.right: RegisterFaceStep.blink,
+  //   };
+  //   if (next.containsKey(_controller.currentStep.value)) {
+  //     setState(() {
+  //       // _current = next[_controller.currentStep.value]!;
+  //       _captureState = CaptureState.idle;
+  //       _validation = FaceValidation.noFace;
+  //     });
+  //     _updateProgressTarget();
+  //   } else {
+  //     setState(() => _captureState = CaptureState.done);
+  //     Future.delayed(const Duration(seconds: 2), () {
+  //       if (mounted) Get.back();
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     final double sw = _sw;
     final double sh = _sh;
     final bool dark = styles.isDarkMode(context);
-    final meta = _stepMeta[_currentStep]!;
+    // final meta = _stepMeta[_controller.currentStep]!;
     final double frameW = sw * 0.72;
     final double frameH = frameW;
 
@@ -258,26 +297,27 @@ class _FaceCameraPageState extends State<FaceCameraPage>
                     SizedBox(height: sh * 0.03),
 
                     // ── Step indicator pills ──────────────────────────────
-                    _buildStepIndicator(sw),
+
+                    Obx(() => _buildStepIndicator(sw)),
 
                     SizedBox(height: sh * 0.025),
 
                     // ── Judul instruksi ───────────────────────────────────
                     AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 350),
-                      transitionBuilder: (child, anim) =>
-                          FadeTransition(opacity: anim, child: child),
-                      child: Text(
-                        meta.title,
-                        key: ValueKey(_currentStep),
-                        style: GoogleFonts.poppins(
-                          fontSize: sw * 0.052,
-                          fontWeight: FontWeight.w700,
-                          color: styles.getTextColor(context),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                        duration: const Duration(milliseconds: 350),
+                        transitionBuilder: (child, anim) =>
+                            FadeTransition(opacity: anim, child: child),
+                        child: Obx(() {
+                          return Text(
+                            _controller.instructionTitle.value,
+                            style: GoogleFonts.poppins(
+                              fontSize: sw * 0.052,
+                              fontWeight: FontWeight.w700,
+                              color: styles.getTextColor(context),
+                            ),
+                            textAlign: TextAlign.center,
+                          );
+                        })),
 
                     SizedBox(height: sh * 0.022),
 
@@ -296,7 +336,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
                     SizedBox(height: sh * 0.022),
 
                     // ── Progress bar ──────────────────────────────────────
-                    _buildProgressBar(sw, dark),
+                    Obx(() => _buildProgressBar(sw, dark)),
 
                     SizedBox(height: sh * 0.018),
 
@@ -318,10 +358,12 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   Widget _buildStepIndicator(double sw) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(FaceStep.values.length, (i) {
-        final isActive = _stepIndex == i;
-        final isDone = _stepIndex > i;
-        final labels = ['Depan', 'Samping', 'Kedip'];
+      children: List.generate(4, (i) {
+        final isCompleted =
+            _controller.currentStep.value == RegisterFaceStep.completed;
+        final isActive = !isCompleted && _visibleStepIndex == i;
+        final isDone = isCompleted || _visibleStepIndex > i;
+        final labels = ['Depan', 'Kanan', 'Kiri', 'Kedip', 'Selesai'];
         return AnimatedContainer(
           duration: const Duration(milliseconds: 400),
           margin: const EdgeInsets.symmetric(horizontal: 5),
@@ -629,17 +671,17 @@ class _FaceCameraPageState extends State<FaceCameraPage>
               size: sw * 0.042,
             ),
             SizedBox(width: sw * 0.02),
-            Flexible(
-              child: Text(
-                _validationHint,
+            Flexible(child: Obx(() {
+              return Text(
+                _controller.instructionMessage.value,
                 style: GoogleFonts.poppins(
                   fontSize: sw * 0.033,
                   color: _hintColor,
                   fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
-              ),
-            ),
+              );
+            })),
           ],
         ),
       ),
@@ -648,6 +690,8 @@ class _FaceCameraPageState extends State<FaceCameraPage>
 
   // ─── Progress bar + step label ────────────────────────────────────────────
   Widget _buildProgressBar(double sw, bool dark) {
+    final progress = (_visibleStepIndex + 1) / _totalStep;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: sw * 0.06),
       child: Column(
@@ -657,7 +701,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
             child: AnimatedBuilder(
               animation: _progressAnimation,
               builder: (_, __) => LinearProgressIndicator(
-                value: _progressAnimation.value,
+                value: (_visibleStepIndex + 1) / _totalStep,
                 minHeight: 6,
                 backgroundColor:
                     dark ? Colors.white12 : const Color(0xFFDDE3EE),
@@ -670,7 +714,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Langkah ${_stepIndex + 1} dari ${FaceStep.values.length}',
+                'Langkah ${_visibleStepIndex + 1} dari $_totalStep',
                 style: GoogleFonts.poppins(
                   fontSize: sw * 0.03,
                   color: styles.getSecondaryTextColor(context),
@@ -678,7 +722,7 @@ class _FaceCameraPageState extends State<FaceCameraPage>
                 ),
               ),
               Text(
-                '${((_stepIndex + 1) / FaceStep.values.length * 100).toInt()}%',
+                '${(progress * 100).toInt()}%',
                 style: GoogleFonts.poppins(
                   fontSize: sw * 0.03,
                   color: blueColor,

@@ -208,11 +208,8 @@ class ScheduleCardLecturer extends StatelessWidget {
                           label: 'Zoom',
                           color: const Color(0xFFF4D8FB),
                           onTap: () {
-                            (jadwal.lokasi == "-")
-                                ? Get.toNamed(
-                                    "/lecturer/lecture-content-screen",
-                                    arguments: jadwal.presensisId)
-                                : Get.toNamed("/lecturer/offline-screen");
+                            Get.toNamed("/lecturer/lecture-content-screen",
+                                arguments: jadwal.presensisId);
                           },
                         ),
                       ],

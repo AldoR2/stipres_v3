@@ -144,8 +144,9 @@ class LocationDetectionScreen extends StatelessWidget {
                   interactionOptions: const InteractionOptions(
                     flags: InteractiveFlag.none,
                   ),
-                  initialCenter:
-                      LatLng(controller.targetLat, controller.targetLng),
+                  initialCenter: (!controller.isAnywhereLocation.value)
+                      ? LatLng(controller.targetLat, controller.targetLng)
+                      : LatLng(location.latitude, location.longitude),
                   initialZoom: 17,
                 ),
                 children: [
@@ -154,24 +155,30 @@ class LocationDetectionScreen extends StatelessWidget {
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.stipres.app',
                   ),
-                  CircleLayer(
-                    circles: [
-                      CircleMarker(
-                        point:
-                            LatLng(controller.targetLat, controller.targetLng),
-                        radius: controller.radiusMeter,
-                        useRadiusInMeter: true,
-                        color: blueColor.withValues(alpha: 0.15),
-                        borderColor: const Color(0xFF3B82F6),
-                        borderStrokeWidth: 2,
-                      ),
-                    ],
-                  ),
+                  (!controller.isAnywhereLocation.value)
+                      ? CircleLayer(
+                          circles: [
+                            CircleMarker(
+                              point: (!controller.isAnywhereLocation.value)
+                                  ? LatLng(controller.targetLat,
+                                      controller.targetLng)
+                                  : LatLng(
+                                      location.latitude, location.longitude),
+                              radius: controller.radiusMeter,
+                              useRadiusInMeter: true,
+                              color: blueColor.withValues(alpha: 0.15),
+                              borderColor: const Color(0xFF3B82F6),
+                              borderStrokeWidth: 2,
+                            ),
+                          ],
+                        )
+                      : SizedBox.shrink(),
                   MarkerLayer(
                     markers: [
                       Marker(
-                        point:
-                            LatLng(controller.targetLat, controller.targetLng),
+                        point: (!controller.isAnywhereLocation.value)
+                            ? LatLng(controller.targetLat, controller.targetLng)
+                            : LatLng(location.latitude, location.longitude),
                         width: 36,
                         height: 36,
                         child: Container(
@@ -198,43 +205,45 @@ class LocationDetectionScreen extends StatelessWidget {
                 ],
               ),
               // Gradient overlay + info label di bawah map
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.45),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.my_location_rounded,
-                        color: Colors.white,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "Radius ${controller.radiusMeter.toInt()} m dari lokasi kelas",
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+              (!controller.isAnywhereLocation.value)
+                  ? Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              Colors.black.withValues(alpha: 0.45),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.my_location_rounded,
+                              color: Colors.white,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              "Radius ${controller.radiusMeter.toInt()} m dari lokasi kelas",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    )
+                  : SizedBox.shrink(),
             ],
           ),
         ),

@@ -13,11 +13,14 @@ class SettingsController extends GetxController {
   final FcmService fcmService = FcmService();
   final isNotificationEnabled = false.obs;
   final Logger log = Logger();
+  final role = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
     isNotificationEnabled.value = _box.read("isNotificationEnabled") ?? true;
+    role.value = _box.read('role');
+    log.d("Role: ${role.value}");
   }
 
   void checkAvalaiblityBiometric() async {

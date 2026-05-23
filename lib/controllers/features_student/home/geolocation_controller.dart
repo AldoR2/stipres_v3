@@ -41,6 +41,7 @@ class GeolocationController extends GetxController {
   final presensisId = 0.obs;
 
   final errorMessage = ''.obs;
+  final RxBool isAnywhereLocation = false.obs;
 
   late double targetLat;
   late double targetLng;
@@ -56,7 +57,12 @@ class GeolocationController extends GetxController {
     presensisId.value = Get.arguments[0] as int;
     final lokasiId = Get.arguments[1] as int;
     mahasiswaId.value = Get.arguments[3] as int;
-    await fetchLocation(lokasiId);
+
+    isAnywhereLocation.value = lokasiId == 0;
+
+    if (!isAnywhereLocation.value) {
+      await fetchLocation(lokasiId);
+    }
     await _getCurrentLocation();
     await loadValidation();
   }
@@ -115,6 +121,11 @@ class GeolocationController extends GetxController {
     final position = await locationPermissionService.getCurrentLocation();
 
     userLocation.value = LatLng(position.latitude, position.longitude);
+
+    if (isAnywhereLocation.value) {
+      isInsideRadius.value = true;
+      return;
+    }
 
     // if (position.accuracy < 20) {
     //   Get.snackbar("Absensi Gagal", "Akurasi rendah");
@@ -185,8 +196,13 @@ class GeolocationController extends GetxController {
     bool isInside = await validateStep(
         index: 3,
         validator: () async {
+          if (isAnywhereLocation.value) {
+            return true;
+          }
+
           return (isInsideRadius.value);
         });
+
     if (!isInside) return false;
 
     return true;

@@ -126,7 +126,8 @@ class PresenceController extends GetxController {
         );
       } else {
         Get.back();
-        Get.snackbar("Error", result.message, duration: Duration(seconds: 1));
+        Get.snackbar("Error", result.message,
+            duration: Duration(seconds: 1), showProgressIndicator: false);
       }
     } catch (e) {
       Get.back();

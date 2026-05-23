@@ -136,12 +136,18 @@ class PresenceContentController extends GetxController {
     log.d("Location Nama: ${presence.value.namaLokasi}");
     var mahasiswaId = _box.read("mahasiswa_id");
 
-    Get.toNamed("/student/face-recognition-screen", arguments: [
-      presensisId.value,
-      presence.value.lokasiId,
-      presence.value.namaLokasi,
-      mahasiswaId
-    ]);
+    int? lokasiId = presence.value.lokasiId;
+    String? namaLokasi = presence.value.namaLokasi;
+
+    if (presence.value.lokasiId == null ||
+        presence.value.namaLokasi == null ||
+        presence.value.namaLokasi == '') {
+      lokasiId = 0;
+      namaLokasi = 'Dimana Saja';
+    }
+
+    Get.toNamed("/student/face-recognition-screen",
+        arguments: [presensisId.value, lokasiId, namaLokasi, mahasiswaId]);
   }
 
   Future<void> uploadPresence() async {
@@ -214,7 +220,6 @@ class PresenceContentController extends GetxController {
 
       if (result.status == "success") {
         Get.back();
-        Get.offAllNamed("/");
         Get.dialog(
           SuccessDialog(
             title: 'Presensi berhasil diunggah!',
@@ -223,6 +228,13 @@ class PresenceContentController extends GetxController {
             onDetailPressed: () => Get.toNamed("/student/notification-screen"),
           ),
           barrierDismissible: false,
+        );
+
+        await Future.delayed(
+          Duration(seconds: 2),
+          () {
+            Get.offAllNamed("/");
+          },
         );
       } else {
         Get.back();

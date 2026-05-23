@@ -42,7 +42,6 @@ class PresenceController extends GetxController {
           return presence;
         }).toList();
         presenceList.assignAll(updatedList);
-        log.d(updatedList);
       } else {
         errorMessage.value = result.message;
       }

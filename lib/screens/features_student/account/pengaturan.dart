@@ -148,72 +148,77 @@ class _PengaturanState extends State<Pengaturan> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                InkWell(
-                                  onTap: () {
-                                    Get.toNamed(
-                                        "/student/face-register-page-screen");
-                                  },
-                                  borderRadius: BorderRadius.circular(
-                                      10), // opsional, supaya ripple-nya lebih bagus
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12.0,
-                                        horizontal:
-                                            4.0), // ⬅️ memperluas area klik secara vertikal
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Image.asset(
-                                            'assets/icons/ic_face_register.png',
-                                            height: 30,
-                                            width: 30),
-                                        const SizedBox(width: 16),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Pengenalan Wajah",
-                                              style:
-                                                  GoogleFonts.plusJakartaSans(
-                                                      fontSize: 16,
+                                (_controller.role.value) == "dosen"
+                                    ? SizedBox.shrink()
+                                    : InkWell(
+                                        onTap: () {
+                                          Get.toNamed(
+                                              "/student/face-register-page-screen");
+                                        },
+                                        borderRadius: BorderRadius.circular(
+                                            10), // opsional, supaya ripple-nya lebih bagus
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 12.0,
+                                              horizontal:
+                                                  4.0), // ⬅️ memperluas area klik secara vertikal
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Image.asset(
+                                                  'assets/icons/ic_face_register.png',
+                                                  height: 30,
+                                                  width: 30),
+                                              const SizedBox(width: 16),
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "Pengenalan Wajah",
+                                                    style: GoogleFonts
+                                                        .plusJakartaSans(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: styles
+                                                                .getTextColor(
+                                                                    context)),
+                                                  ),
+                                                  SizedBox(height: 3),
+                                                  Text(
+                                                    "Presensi dengan deteksi wajah",
+                                                    style:
+                                                        blackTextStyle.copyWith(
+                                                      fontSize: 12,
+                                                      color: Color.fromARGB(
+                                                          255, 161, 161, 161),
                                                       fontWeight:
-                                                          FontWeight.w600,
-                                                      color:
-                                                          styles.getTextColor(
-                                                              context)),
-                                            ),
-                                            SizedBox(height: 3),
-                                            Text(
-                                              "Presensi dengan deteksi wajah",
-                                              style: blackTextStyle.copyWith(
-                                                fontSize: 12,
-                                                color: Color.fromARGB(
-                                                    255, 161, 161, 161),
-                                                fontWeight: FontWeight.w800,
+                                                          FontWeight.w800,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        const Spacer(),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Color.fromARGB(
-                                                255, 30, 136, 228),
-                                            shape: BoxShape.circle,
+                                              const Spacer(),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: Color.fromARGB(
+                                                      255, 30, 136, 228),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.all(1.0),
+                                                child: const Icon(
+                                                  Icons.chevron_right,
+                                                  color: Colors.white,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          padding: const EdgeInsets.all(1.0),
-                                          child: const Icon(
-                                            Icons.chevron_right,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                      ),
                                 InkWell(
                                   onTap: () {
                                     _controller.checkAvalaiblityBiometric();
@@ -657,65 +662,72 @@ class _PengaturanState extends State<Pengaturan> {
                                     ),
                                   ),
                                 ),
-                                InkWell(
-                                  onTap: () {
-                                    Get.toNamed(
-                                        "/student/register-face-screen");
-                                  },
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 12.0, horizontal: 4.0),
-                                    child: Row(
-                                      children: [
-                                        Image.asset('assets/icons/ic_help.png',
-                                            height: 30, width: 30),
-                                        const SizedBox(width: 16),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Sementara Daftar wajah",
-                                              style:
-                                                  GoogleFonts.plusJakartaSans(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color:
-                                                          styles.getTextColor(
-                                                              context)),
-                                            ),
-                                            SizedBox(height: 3),
-                                            Text(
-                                              "Face Recog",
-                                              style: blackTextStyle.copyWith(
-                                                fontSize: 12,
-                                                color: Color.fromARGB(
-                                                    255, 161, 161, 161),
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const Spacer(),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: Color.fromARGB(
-                                                255, 30, 136, 228),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          padding: const EdgeInsets.all(1.0),
-                                          child: const Icon(
-                                            Icons.chevron_right,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                // (_controller.role.value) == "dosen"
+                                //     ? SizedBox.shrink()
+                                //     : InkWell(
+                                //         onTap: () {
+                                //           Get.toNamed(
+                                //               "/student/register-face-screen");
+                                //         },
+                                //         borderRadius: BorderRadius.circular(10),
+                                //         child: Padding(
+                                //           padding: const EdgeInsets.symmetric(
+                                //               vertical: 12.0, horizontal: 4.0),
+                                //           child: Row(
+                                //             children: [
+                                //               Image.asset(
+                                //                   'assets/icons/ic_help.png',
+                                //                   height: 30,
+                                //                   width: 30),
+                                //               const SizedBox(width: 16),
+                                //               Column(
+                                //                 crossAxisAlignment:
+                                //                     CrossAxisAlignment.start,
+                                //                 children: [
+                                //                   Text(
+                                //                     "Sementara Daftar wajah",
+                                //                     style: GoogleFonts
+                                //                         .plusJakartaSans(
+                                //                             fontSize: 16,
+                                //                             fontWeight:
+                                //                                 FontWeight.w600,
+                                //                             color: styles
+                                //                                 .getTextColor(
+                                //                                     context)),
+                                //                   ),
+                                //                   SizedBox(height: 3),
+                                //                   Text(
+                                //                     "Face Recog",
+                                //                     style:
+                                //                         blackTextStyle.copyWith(
+                                //                       fontSize: 12,
+                                //                       color: Color.fromARGB(
+                                //                           255, 161, 161, 161),
+                                //                       fontWeight:
+                                //                           FontWeight.w800,
+                                //                     ),
+                                //                   ),
+                                //                 ],
+                                //               ),
+                                //               const Spacer(),
+                                //               Container(
+                                //                 decoration: BoxDecoration(
+                                //                   color: Color.fromARGB(
+                                //                       255, 30, 136, 228),
+                                //                   shape: BoxShape.circle,
+                                //                 ),
+                                //                 padding:
+                                //                     const EdgeInsets.all(1.0),
+                                //                 child: const Icon(
+                                //                   Icons.chevron_right,
+                                //                   color: Colors.white,
+                                //                   size: 20,
+                                //                 ),
+                                //               ),
+                                //             ],
+                                //           ),
+                                //         ),
+                                //       ),
                               ],
                             ),
                           ),

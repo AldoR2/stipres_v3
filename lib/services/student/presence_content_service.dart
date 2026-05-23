@@ -35,6 +35,7 @@ class PresenceContentService extends GetxService {
       log.d(url);
 
       final body = jsonDecode(response.body);
+      log.d(body);
 
       if (response.statusCode == 401) {
         log.f("Response 401");

@@ -917,13 +917,20 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                                     prefixIcon: Icons.place_outlined),
                                 items: [
                                   ..._controller.listLokasi
-                                      .map((lokasi) => DropdownMenuItem(
+                                      .map((lokasi) => DropdownMenuItem<String>(
                                             value: lokasi.id.toString(),
                                             child: Text(lokasi.nama ?? '',
                                                 style: GoogleFonts.dmSans(
                                                     fontSize:
                                                         _sp(context, 14))),
                                           )),
+                                  const DropdownMenuItem<String>(
+                                      value: "0",
+                                      child: Text(
+                                        "Dimana Saja",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      )),
                                   DropdownMenuItem(
                                     value: 'tambah_lokasi',
                                     child: Row(
@@ -955,22 +962,57 @@ class _AddPresenceScreenState extends State<AddPresenceScreen> {
                                   ),
                                 ],
                                 onChanged: (val) {
+                                  if (val == null) return;
+
                                   if (val == 'tambah_lokasi') {
-                                    _controller.selectedLokasiId.value =
-                                        _controller.selectedLokasiId.value;
                                     _controller.openLocationPicker(context);
-                                  } else {
-                                    _controller.selectedLokasiId.value = val!;
-                                    final lokasi = _controller.listLokasi
-                                        .firstWhere(
-                                            (e) => e.id.toString() == val);
-                                    _controller.selectedLokasiNama.value =
-                                        lokasi.nama ?? '';
-                                    _controller.latitude.value =
-                                        lokasi.latitude?.toString() ?? '';
-                                    _controller.longitude.value =
-                                        lokasi.longitude?.toString() ?? '';
+                                    return;
                                   }
+
+                                  if (val == '0') {
+                                    _controller.selectedLokasiId.value = '0';
+                                    _controller.selectedLokasiNama.value =
+                                        'Dimana Saja';
+                                    _controller.latitude.value = '';
+                                    _controller.longitude.value = '';
+                                    return;
+                                  }
+
+                                  _controller.selectedLokasiId.value = val;
+
+                                  final lokasi =
+                                      _controller.listLokasi.firstWhere(
+                                    (e) => e.id.toString() == val,
+                                  );
+
+                                  _controller.selectedLokasiNama.value =
+                                      lokasi.nama ?? '';
+                                  _controller.latitude.value =
+                                      lokasi.latitude?.toString() ?? '';
+                                  _controller.longitude.value =
+                                      lokasi.longitude?.toString() ?? '';
+                                  // if (val == 'tambah_lokasi') {
+                                  //   _controller.selectedLokasiId.value =
+                                  //       _controller.selectedLokasiId.value;
+                                  //   _controller.openLocationPicker(context);
+                                  // } else {
+                                  //   _controller.selectedLokasiId.value = val!;
+                                  //   final lokasi = _controller.listLokasi
+                                  //       .firstWhere(
+                                  //           (e) => e.id.toString() == val);
+                                  //   _controller.selectedLokasiNama.value =
+                                  //       lokasi.nama ?? '';
+                                  //   _controller.latitude.value =
+                                  //       lokasi.latitude?.toString() ?? '';
+                                  //   _controller.longitude.value =
+                                  //       lokasi.longitude?.toString() ?? '';
+                                  // }
+                                },
+                                validator: (val) {
+                                  if (val == null || val.isEmpty) {
+                                    return 'Lokasi presensi wajib dipilih';
+                                  }
+                                  return null;
                                 },
                               )),
 

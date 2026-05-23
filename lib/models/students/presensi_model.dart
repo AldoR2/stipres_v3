@@ -28,8 +28,8 @@ class PresensiModelApi {
     return PresensiModelApi(
         nim: json['nim'],
         presensisId: json['presensis_id'],
-        lokasiId: json['lokasi_id'],
-        namaLokasi: json['nama_lokasi'],
+        lokasiId: json['lokasi_id'] ?? 0,
+        namaLokasi: json['nama_lokasi'] ?? 'Dimana Saja',
         semester: json['semester'],
         presensiId: json['presensi_id'],
         durasiPresensi: json['durasi_presensi'],

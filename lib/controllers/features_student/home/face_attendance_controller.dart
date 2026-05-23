@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:get/get.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:logger/logger.dart';
@@ -218,6 +217,7 @@ class FaceAttendanceController extends GetxController {
               "Wajah tidak cocok. Similarity: ${compareResult.similarity.toStringAsFixed(3)}",
           gifAssetPath: "assets/gif/failed_animation.gif",
         ));
+        resetLiveness();
         return;
       }
       hideLoading();
@@ -226,14 +226,15 @@ class FaceAttendanceController extends GetxController {
         subtitle: "Similarity: ${compareResult.similarity.toStringAsFixed(3)}",
         gifAssetPath: "assets/gif/success_animation.gif",
       ));
-      Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(seconds: 1));
+      onClose();
+      resetLiveness();
       Get.offNamed("/student/geolocation-screen", arguments: [
         presensisId.value,
         lokasiId.value,
         namaLokasi.value,
         mahasiswaId.value
       ]);
-      resetLiveness();
     } catch (e) {
       log.e("Error: $e");
     }
