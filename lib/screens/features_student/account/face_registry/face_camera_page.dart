@@ -739,42 +739,45 @@ class _FaceCameraPageState extends State<FaceCameraPage>
   // ─── Sim chips + batal ────────────────────────────────────────────────────
   Widget _buildBottomSection(double sw, double sh) {
     return Obx(() {
+      final result = _controller.hasResult.value;
       return Column(
         children: [
-          SizedBox(
-            width: sw * 0.86,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: _controller.isFaceValid.value &&
-                      !_controller.isRegistering.value
-                  ? _controller.registerFace
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: blueColor,
-                disabledBackgroundColor: greyColor.withOpacity(0.3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+          (result)
+              ? SizedBox.shrink()
+              : SizedBox(
+                  width: sw * 0.86,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _controller.isFaceValid.value &&
+                            !_controller.isRegistering.value
+                        ? _controller.registerFace
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: blueColor,
+                      disabledBackgroundColor: greyColor.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Text(
+                      _controller.isRegistering.value
+                          ? 'Mendaftarkan...'
+                          : _controller.isAvailable.value
+                              ? 'Update Wajah'
+                              : 'Daftarkan Wajah',
+                      style: GoogleFonts.poppins(
+                        fontSize: sw * 0.038,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              child: Text(
-                _controller.isRegistering.value
-                    ? 'Mendaftarkan...'
-                    : _controller.isAvailable.value
-                        ? 'Update Wajah'
-                        : 'Daftarkan Wajah',
-                style: GoogleFonts.poppins(
-                  fontSize: sw * 0.038,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
           SizedBox(height: sh * 0.015),
           GestureDetector(
             onTap: () => Get.back(),
             child: Text(
-              'Batal',
+              (result) ? "Keluar" : 'Batal',
               style: GoogleFonts.poppins(
                 fontSize: sw * 0.038,
                 fontWeight: FontWeight.w500,

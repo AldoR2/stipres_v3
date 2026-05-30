@@ -127,11 +127,9 @@ class FaceAttendanceController extends GetxController {
           onOkPressed: () {
             Get.offAllNamed("/");
           },
-          onDetailPressed: () => Get.offAllNamed("/"),
+          onDetailPressed: () =>
+              Get.offAllNamed("/student/face-register-page-screen"),
         ));
-        // Future.delayed(Duration(seconds: 2), () {
-        //   Get.offAllNamed("/");
-        // });
         log.w("Embedding belum tersedia: ${result.message}");
       }
     } catch (e) {
@@ -411,8 +409,16 @@ class FaceAttendanceController extends GetxController {
           //       imageSize: imageSize.value,
           //       lensDirection: CameraLensDirection.front);
           // }
+
+          // final hasil = await checkFaceCentered(
+          //     face: face,
+          //     imageSize: imageSize.value,
+          //     lensDirection: CameraLensDirection.front);
+
+          // log.d("Hasil $hasil");
+
           final centerX = face.boundingBox.center.dx;
-          final imageCenterX = image.width / 2;
+          final imageCenterX = (image.width / 2) - 120;
           final diff = (centerX - imageCenterX).abs();
           isFaceCentered.value = diff < 80;
         }
@@ -474,13 +480,22 @@ class FaceAttendanceController extends GetxController {
   //     faceCenterX = imageSize.width - faceCenterX;
   //   }
 
+  //   final rawFaceCenterX = face.boundingBox.center.dx;
   //   final imageCenterX = imageSize.width / 2;
+
+  //   faceCenterX = imageSize.width - rawFaceCenterX;
+
+  //   // final imageCenterX = imageSize.width / 2;
   //   final imageCenterY = imageSize.height / 2;
 
   //   final dx = (faceCenterX - imageCenterX).abs();
   //   final dy = (faceCenterY - imageCenterY).abs();
 
   //   final toleranceX = imageSize.width * 0.18;
+
+  //   log.d("Face Center X : $faceCenterX");
+  //   log.d("Image Center X: $imageCenterX");
+  //   log.d("Diff X       : ${faceCenterX - imageCenterX}");
   //   final toleranceY = imageSize.height * 0.18;
 
   //   return dx <= toleranceX && dy <= toleranceY;

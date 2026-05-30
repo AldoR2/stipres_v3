@@ -214,7 +214,7 @@ class RegisterFaceController extends GetxController {
           isHeadStraight.value = yaw.abs() < 15;
 
           final centerX = face.boundingBox.center.dx;
-          final imageCenterX = image.width / 2;
+          final imageCenterX = (image.width / 2) - 120;
           final diff = (centerX - imageCenterX).abs();
           isFaceCentered.value = diff < 80;
 
