@@ -43,3 +43,19 @@ dependencies {
 flutter {
     source = "../.."
 }
+
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import JavaVersion
+
+subprojects {
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17.toString()
+        targetCompatibility = JavaVersion.VERSION_17.toString()
+    }
+
+    tasks.withType<KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
+    }
+}
