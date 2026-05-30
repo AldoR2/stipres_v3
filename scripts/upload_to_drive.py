@@ -1,13 +1,28 @@
+import os
 import sys
 from pathlib import Path
 
-from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
+from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 
-SERVICE_ACCOUNT_FILE = "service-account.json"
 SCOPES = ["https://www.googleapis.com/auth/drive.file"]
+
+
+def get_credentials():
+    credentials = Credentials(
+        token=None,
+        refresh_token=os.environ["GDRIVE_REFRESH_TOKEN"],
+        token_uri="https://oauth2.googleapis.com/token",
+        client_id=os.environ["GDRIVE_CLIENT_ID"],
+        client_secret=os.environ["GDRIVE_CLIENT_SECRET"],
+        scopes=SCOPES,
+    )
+
+    credentials.refresh(Request())
+    return credentials
 
 
 def upload_file(file_path: str, folder_id: str):
@@ -16,11 +31,7 @@ def upload_file(file_path: str, folder_id: str):
     if not path.exists():
         raise FileNotFoundError(f"File tidak ditemukan: {file_path}")
 
-    credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_FILE,
-        scopes=SCOPES,
-    )
-
+    credentials = get_credentials()
     service = build("drive", "v3", credentials=credentials)
 
     file_metadata = {
@@ -38,6 +49,7 @@ def upload_file(file_path: str, folder_id: str):
         body=file_metadata,
         media_body=media,
         fields="id, name, webViewLink",
+        supportsAllDrives=True,
     ).execute()
 
     print("Upload berhasil")
