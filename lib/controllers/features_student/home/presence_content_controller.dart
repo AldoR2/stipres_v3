@@ -459,6 +459,7 @@ class PresenceContentController extends GetxController {
             onTap: () async {
               Get.back();
               await getImageFromCamera();
+              log.d("Status ${bukti.value}");
             },
           ),
           ListTile(
@@ -467,6 +468,7 @@ class PresenceContentController extends GetxController {
             onTap: () async {
               Get.back();
               await getImageFromGallery();
+              log.d("Status ${bukti.value}");
             },
           ),
           ListTile(
@@ -475,6 +477,7 @@ class PresenceContentController extends GetxController {
             onTap: () async {
               Get.back();
               await pickFile();
+              log.d("Status ${bukti.value}");
             },
           ),
         ],

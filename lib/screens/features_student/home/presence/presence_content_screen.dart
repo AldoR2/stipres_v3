@@ -3,11 +3,8 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:stipres/screens/features_student/widgets/cards/presence/presenceContent_card.dart';
 import 'package:stipres/screens/reusable/custom_header.dart';
-import 'package:stipres/screens/reusable/loading_screen.dart';
 import 'package:stipres/controllers/features_student/home/presence_content_controller.dart';
-import 'package:stipres/constants/styles.dart';
 import 'package:stipres/theme/theme_helper.dart' as styles;
-import 'package:stipres/screens/features_student/home/presence/face_recognition_screen.dart';
 
 class PresenceContentScreen extends StatefulWidget {
   PresenceContentScreen({super.key});
@@ -498,14 +495,24 @@ class _PresenceContentScreenState extends State<PresenceContentScreen> {
                             size: _sp(context, 18),
                             color: _blue600,
                           ),
-                          label: Text(
-                            'Upload Bukti',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: _sp(context, 14),
-                              fontWeight: FontWeight.w600,
-                              color: _blue600,
-                            ),
-                          ),
+                          label: Obx(() {
+                            final status = _controller.bukti.value;
+                            return (status == null)
+                                ? Text(
+                                    'Upload Bukti',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: _sp(context, 14),
+                                      fontWeight: FontWeight.w600,
+                                      color: _blue600,
+                                    ),
+                                  )
+                                : Text('Perbarui Bukti',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: _sp(context, 14),
+                                      fontWeight: FontWeight.w600,
+                                      color: _blue600,
+                                    ));
+                          }),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             elevation: 0,
