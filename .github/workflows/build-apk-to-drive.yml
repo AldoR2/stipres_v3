@@ -31,10 +31,10 @@ jobs:
         run: flutter pub get
 
       - name: Analyze Project
-        run: flutter Analyze
+        run: flutter analyze
 
       - name: Build Release APK
-        run: flutter build apk --Release
+        run: flutter build apk --release
 
       - name: Rename APK
         run: 
@@ -49,20 +49,20 @@ jobs:
 
       - name: Decode Google Service Account
         run:
-          echo"${{ secrets.GDRIVE_SERVICE_ACCOUNT_BASE64 }}"  |  base64 --decode >  service.account.json
+          echo "${{ secrets.GDRIVE_SERVICE_ACCOUNT_BASE64 }}"  |  base64 --decode >  service.account.json
 
       - name: Install Google Drive Uploader Dependencies
         run:
-          python -m pip install
-          pip install google=api-python-client google-auth google-auth-httplib2 google-auth-oauthlib
+          python -m pip install --upgrade pip
+          pip install google-api-python-client google-auth google-auth-httplib2 google-auth-oauthlib
 
       - name: Upload APK to Google Drive
         env:
           GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
         run:
-          python scripts/upload_to_drive.python
-          "output/stipres-${{ github run_number }}.apk"  \
-          "$GRDIR_folder_id"
+          python scripts/upload_to_drive.py \
+          "output/stipres-${{ github.run_number }}.apk"  \
+          "$GDRIVE_FOLDER_ID"
 
 
         
