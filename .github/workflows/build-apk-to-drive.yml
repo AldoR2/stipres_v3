@@ -50,7 +50,7 @@ jobs:
 
       - name: Decode Google Service Account
         run: |
-          echo "${{ secrets.GDRIVE_SERVICE_ACCOUNT_BASE64 }}"  |  base64 --decode >  service.account.json
+          echo "${{ secrets.GDRIVE_SERVICE_ACCOUNT_BASE64 }}"  |  base64 --decode >  service-account.json
 
       - name: Install Google Drive Uploader Dependencies
         run: |
